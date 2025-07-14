@@ -6,6 +6,7 @@ import { NotesServices } from "../../Services/Notes/NotesServices"
 import { Request, Response } from "express"
 import fs from 'fs'
 import PDFPrinter from 'pdfmake'
+import QRCode from 'qrcode';
 
 const handleService: HandleService = new HandleService()
 const noteService = new NotesServices()
@@ -27,6 +28,9 @@ export class ConttrollersNotes {
             const dinheiro: number | any = resMoney;
             const bodyItems = await mountTableItems(itens);
             const bodyInvoice = await mountTableInvoice(invoices);
+            // const qrText = `Nota Nº ${nota} - Emitida em: ${new Date(emitida).toLocaleDateString('pt-BR')}`;
+            const qrText = `https://api.centroinfo.com.br/note/${nota}`;
+            const qrDataUrl = await QRCode.toDataURL(qrText); // Gera imagem base64
 
             const fonts = {
                 Helvetica: {
@@ -176,6 +180,12 @@ export class ConttrollersNotes {
                             ]]
                         },
                         layout: 'lightHorizontalLines'
+                    },
+                    {
+                        image: qrDataUrl,
+                        width: 100,
+                        alignment: 'left',
+                        margin: [0, 10, 0, 20]
                     }
                 ],
                 styles: {
@@ -212,8 +222,10 @@ export class ConttrollersNotes {
                         color: 'black',
                         margin: 2
                     }
-                }
+                },
             };
+
+
 
             const pdfDoc = printer.createPdfKitDocument(docDefinitions)
             pdfDoc.pipe(fs.createWriteStream("res_note.pdf"))
