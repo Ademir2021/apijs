@@ -85,7 +85,7 @@ export class ConttrollersNotes {
                             },
                             {
                                 text: [
-                                    { text: `Nota de Venda Nº 000${nota}\n`, bold: true },
+                                    { text: `Nota de Venda Nº ${String(nota).padStart(6, '0')}\n`, bold: true },
                                     `Espécie: [PE]\n`,
                                     `Emissão: ${new Date(emitida).toLocaleDateString('pt-BR')}`
                                 ],
@@ -173,7 +173,7 @@ export class ConttrollersNotes {
                                     text:
                                         `Observações:\n` +
                                         `Valor recebido em dinheiro: R$ ${parseFloat(dinheiro?.valor || 0).toFixed(2)}\n` +
-                                        `Esta nota Nº ${nota} não possui valor fiscal.\n` +
+                                        `Esta nota Nº ${String(nota).padStart(6, '0')} não possui valor fiscal.\n` +
                                         `Nota emitida on-line pelo site: https://www.centroinfo.com.br`,
                                     fontSize: 9
                                 }
@@ -225,8 +225,6 @@ export class ConttrollersNotes {
                 },
             };
 
-
-
             const pdfDoc = printer.createPdfKitDocument(docDefinitions)
             pdfDoc.pipe(fs.createWriteStream("res_note.pdf"))
             const chunks: any = [];
@@ -238,7 +236,7 @@ export class ConttrollersNotes {
                 const result = Buffer.concat(chunks)
                 response.end(result);
             });
-            // handleService.setSendMailNote(num_note, email, telefone, comprador, endereco)
+            handleService.setSendMailNote(num_note, email, telefone, comprador, endereco)
         } catch (err) {
             response.json("Error Occurred ! " + err)
         }
