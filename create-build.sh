@@ -1,6 +1,8 @@
 #bin/bash
+echo 'init new build'
 npx tsc
-rm -rf ../api-centroinfo/build
-echo 'Criando nova build'
-cp -rf build/ ../api-centroinfo
-echo 'build api-centroinfo gerada com sucesso'
+echo 'remove old build'
+rm -rf ../../builds/sale/api/build
+echo 'create new build'
+cp -rf build/ ../../builds/sale/api/build
+echo 'end'

@@ -1,96 +1,32 @@
-import { Request, Response } from "express"
-import { postgreSQL } from "../../Providers/Storages/pg/postgreSQL"
-import PDFPrinter from 'pdfmake'
-import fs from 'fs'
-import { IReportNotes } from "../../Interfaces/Note/Note"
 import { HandleService } from "../../Providers/Mail/nodeMailer"
-
-type TDinheiro = {
-    valor: 0
-}
+import { IReportNotes } from "../../Interfaces/Note/Note"
+import { mountTableInvoice } from "./utils/mountTableInvoice"
+import { mountTableItems } from "./utils/mountTableItems"
+import { NotesServices } from "../../Services/Notes/NotesServices"
+import { Request, Response } from "express"
+import fs from 'fs'
+import PDFPrinter from 'pdfmake'
 
 const handleService: HandleService = new HandleService()
+const noteService = new NotesServices()
 
 export class ConttrollersNotes {
 
     async select(request: Request, response: Response) {
         try {
-            const { num_nota } = request.params
-            const res_nota = await postgreSQL.query("SELECT *FROM nota WHERE nota = '" + num_nota + "'")
-            const { nota, filial, comprador, cpf, endereco, num_endereco, telefone, usuario, email, emitida,
-                val_rec, desc_venda, total_venda, fantasia, f_endereco, cnpj, inscricao,
-                f_telefone, f_email, bairro, cep, uf, municipio } = res_nota.rows[0];
-            const res_itens_nota = await postgreSQL.query("SELECT  *FROM itens_nota WHERE id_venda = '" + num_nota + "'")
-            const itens = res_itens_nota.rows
-            const res_faturas = await postgreSQL.query("SELECT *FROM contas_receber WHERE fk_venda = '" + num_nota + "' ORDER BY vencimento")
-            const faturas = res_faturas.rows
-            const res_dinheiro = await postgreSQL.query("SELECT  valor FROM vals_recebidos WHERE fk_venda = '" + num_nota + "' and fk_conta = 0 ")
-            const dinheiro: TDinheiro | any = res_dinheiro.rows[0]
-
-            function setDinheiro() {
-                let valor:any = 0
-                if (dinheiro?.valor != null) {
-                    valor = dinheiro?.valor
-                    return "R$ " + parseFloat(valor).toFixed(2)
-                }
-                else if (dinheiro?.valor == null)
-                    return 0
-            }
-
-            const bodyItems = [];
-            const columnsTitle = [
-                { text: "Item", style: "columnsTitle" },
-                { text: "Descrição produtos", style: "columnsTitle" },
-                { text: "Marca", style: "columnsTitle" },
-                { text: "Quant", style: "columnsTitle" },
-                { text: "Valor Unit", style: "columnsTitle" },
-                { text: "Total Item", style: "columnsTitle" },
-            ]
-
-            const columnsBody = new Array();
-            columnsTitle.forEach(column => columnsBody.push(column));
-            bodyItems.push(columnsBody)
-
-            for (let item of itens) {
-                const rows = new Array();
-                rows.push(item.item)
-                rows.push(item.descricao)
-                rows.push(item.marca)
-                rows.push(item.quant)
-                rows.push(`R$ ${item.valor}`)
-                rows.push(`R$ ${item.total}`)
-                bodyItems.push(rows)
-            }
-
-            const bodyFaturas = []
-            const columnsTitleFaturas = [
-                { text: "Número", style: "columnsTitle" },
-                { text: "Tipo", style: "columnsTitle" },
-                { text: "Vencimento", style: "columnsTitle" },
-                { text: "Valor", style: "columnsTitle" },
-            ]
-
-            const columnsBodyFaturas = new Array();
-            columnsTitleFaturas.forEach(column => columnsBodyFaturas.push(column));
-            bodyFaturas.push(columnsBodyFaturas)
-
-            for (let fatura of faturas) {
-                const rows = new Array();
-                rows.push(fatura.id_conta)
-                rows.push(fatura.tipo)
-                rows.push(fatura.vencimento.toLocaleString('pt-BR', { timezone: 'UTC' }))
-                rows.push(`R$ ${parseFloat(fatura.valor).toFixed(2)}`)
-                bodyFaturas.push(rows)
-            }
-
-            const img = {
-                image: 'logo.png',
-                alignment: 'center',
-                width: 136,
-                height: 48,
-                opacity: 0.9,
-                margin: 2,
-            }
+            const { num_nota: num_note } = request.params;
+            const resNota = await noteService.getNote(num_note);
+            const { nota, filial, comprador, cpf, endereco, num_endereco,
+                telefone, usuario, email, emitida, val_rec, desc_venda,
+                total_venda, fantasia, f_endereco, cnpj, inscricao,
+                f_telefone, f_email, bairro, cep, uf, municipio } = resNota;
+            const resItemsNota = await noteService.getItemsNote(num_note);
+            const itens = resItemsNota;
+            const invoices = await noteService.getInvoice(num_note);
+            const resMoney = await noteService.getMoney(num_note);
+            const dinheiro: number | any = resMoney;
+            const bodyItems = await mountTableItems(itens);
+            const bodyInvoice = await mountTableInvoice(invoices);
 
             const fonts = {
                 Helvetica: {
@@ -105,165 +41,192 @@ export class ConttrollersNotes {
 
             const docDefinitions: IReportNotes | any = {
                 defaultStyle: { font: "Helvetica" },
-                content: [
-                    {
-                        style: 'columnsFilial',
-                        table: {
-                            heights: function (row: any) {
-                                return 10;
+                footer: function (currentPage: number, pageCount: number) {
+                    return {
+                        columns: [
+                            {
+                                text: 'CentroInfo - https://www.centroinfo.com.br',
+                                alignment: 'left',
+                                fontSize: 7,
+                                margin: [40, 0, 0, 0]
                             },
-
-                            widths: ["28%", "28%", "21%", "23%"],
-                            body: [
-                                [
-                                    img,
-                                    `Filial: ${filial}
-                             Empresa: ${fantasia}
-                                Cnpj: ${cnpj}
-                   Incrição estadual: ${inscricao}
-                            Endereço: ${f_endereco}
-                            Telefone: ${f_telefone}
-                               Email: ${f_email}\n`,
-                                    `\nNota de venda\n Nº 000${nota}
-                                  \nEspécie\n[PE]`,
-                                    `\n\nData de emissão\n\n${emitida.toLocaleString('pt-BR', { timezone: 'UTC' })}`,
-                                ]
-                            ]
-                        }
-                    },
+                            {
+                                text: `Página ${currentPage} de ${pageCount}`,
+                                alignment: 'right',
+                                fontSize: 7,
+                                margin: [0, 0, 40, 0]
+                            }
+                        ]
+                    };
+                },
+                content: [
+                    // Cabeçalho da empresa com logo + dados
                     {
-                        text: '\nCLIENTE/DESTINATÁRIO', style: 'title'
+                        columns: [
+                            {
+                                image: 'logo.png',
+                                width: 100
+                            },
+                            {
+                                width: '*',
+                                text: [
+                                    { text: `${fantasia}\n`, style: 'empresaTitulo' },
+                                    `Filial: ${filial}\n`,
+                                    `CNPJ: ${cnpj} | IE: ${inscricao}\n`,
+                                    `Endereço: ${f_endereco}\n`,
+                                    `Telefone: ${f_telefone} | Email: ${f_email}`
+                                ],
+                                margin: [10, 0, 0, 0],
+                                fontSize: 9
+                            },
+                            {
+                                text: [
+                                    { text: `Nota de Venda Nº 000${nota}\n`, bold: true },
+                                    `Espécie: [PE]\n`,
+                                    `Emissão: ${new Date(emitida).toLocaleDateString('pt-BR')}`
+                                ],
+                                alignment: 'right',
+                                fontSize: 9
+                            }
+                        ],
+                        columnGap: 10,
+                        margin: [0, 0, 0, 10]
                     },
+
+                    // Divisor visual
+                    { canvas: [{ type: 'line', x1: 0, y1: 0, x2: 520, y2: 0, lineWidth: 1 }], margin: [0, 10, 0, 10] },
+
+                    // Cliente
+                    { text: 'CLIENTE / DESTINATÁRIO', style: 'sectionHeader' },
                     {
                         style: 'columnsPerson',
+                        layout: 'lightHorizontalLines',
                         table: {
                             widths: ["50%", "50%"],
                             body: [
-                                [`Nome:${comprador}`, `Telefone:${telefone}`],
-                                [`CPF:${cpf}`, `Telefone:`],
-                                [`Endereço:${endereco} - Nº${num_endereco}`, `Bairro:${bairro}`],
-                                [`Cidade: ${municipio}`, `Email:${email}`],
-                                [`Estado: ${uf}`, `User:${usuario}`],
-                                [`CEP: ${cep}`, `Email: ${email}`]
+                                [`Nome: ${comprador}`, `Telefone: ${telefone}`],
+                                [`CPF: ${cpf}`, ``],
+                                [`Endereço: ${endereco}, Nº ${num_endereco}`, `Bairro: ${bairro}`],
+                                [`Cidade: ${municipio}`, `Estado: ${uf}`],
+                                [`CEP: ${cep}`, `Email: ${email}`],
+                                [`Usuário: ${usuario}`, ``]
                             ]
                         }
                     },
-                    {
-                        text: `\n\nVALOR RECEBIDO EM DINHEIRO/ESPÉCIE - ${setDinheiro()}`, style: 'title',
-                    },
-                    {
-                        text: '\n\n FATURA', style: 'title'
-                    },
-                    {
-                        style: 'columnsNota',
-                        table: {
-                            heights: function (row: any) {
-                                return 10;
-                            },
-                            widths: ["8%", "5%", "20%", "15%"],
-                            body: bodyFaturas
-                        },
-                    },
-                    {
-                        text: `\n\n DADOS PRODUTOS/SERVIÇOS`, style: "title"
-                    },
-                    {
-                        style: 'columnsNota',
-                        table: {
-                            heights: function (row: any) {
-                                return 10;
-                            },
-                            widths: ["6%", "46%", "15%", "7%", "12%", "14%"],
-                            body: bodyItems
-                        },
-                    },
-                    {
-                        text: '\nVALORES/TOTAIS', style: 'title'
-                    },
-                    {
-                        style: '',
-                        table: {
-                            widths: ['*', '*', '*', 100],
-                            body: [
-                                [`Produtos/Serviços\nR$ ${total_venda}`,
-                                `Desconto/Produtos\nR$ ${desc_venda}`,
-                                `Total à pagar\nR$ ${val_rec}`,
-                                `Total Nota\nR$ ${val_rec}`]
-                            ]
-                        }
-                    },
-                    {
-                        text: '\nDADOS COMPLEMENTARES', style: 'title'
-                    },
-                    {
-                        style: "",
-                        table: {
-                            widths: ["*"],
-                            body: [
-                                [`\nObservações:\n
-                                    Valor recebido em dinheiro - ${setDinheiro()}\n
-                                Está nota Nº ${nota} não possui valor fiscal\n
-                                Nota emitida on-line pelo site: https://www.centroinfo.com.br`]
-                            ]
-                        }
-                    }
 
+                    // Valor recebido
+                    { text: '\nVALOR RECEBIDO EM DINHEIRO / ESPÉCIE', style: 'sectionHeader' },
+                    {
+                        text: `R$ ${parseFloat(dinheiro?.valor || 0).toFixed(2)}`,
+                        style: 'valorDestaque'
+                    },
+
+                    // Faturas
+                    { text: '\nFATURA(S)', style: 'sectionHeader' },
+                    {
+                        style: 'columnsNota',
+                        layout: 'lightHorizontalLines',
+                        table: {
+                            widths: ["15%", "20%", "30%", "20%"],
+                            body: bodyInvoice
+                        }
+                    },
+
+                    // Itens
+                    { text: '\nDADOS DOS PRODUTOS / SERVIÇOS', style: 'sectionHeader' },
+                    {
+                        style: 'columnsNota',
+                        layout: 'lightHorizontalLines',
+                        table: {
+                            widths: ["8%", "46%", "12%", "9%", "11%", "14%"],
+                            body: bodyItems
+                        }
+                    },
+
+                    // Totais
+                    { text: '\nVALORES / TOTAIS', style: 'sectionHeader' },
+                    {
+                        layout: 'noBorders',
+                        table: {
+                            widths: ['25%', '25%', '25%', '25%'],
+                            body: [[
+                                { text: `Produtos/Serviços:\nR$ ${total_venda}`, alignment: 'right' },
+                                { text: `Desconto:\nR$ ${desc_venda}`, alignment: 'right' },
+                                { text: `Total a pagar:\nR$ ${val_rec}`, alignment: 'right' },
+                                { text: `Total Nota:\nR$ ${val_rec}`, alignment: 'right' }
+                            ]]
+                        },
+                        margin: [0, 5, 0, 10]
+                    },
+
+                    // Complementares
+                    { text: 'DADOS COMPLEMENTARES', style: 'sectionHeader' },
+                    {
+                        table: {
+                            widths: ['*'],
+                            body: [[
+                                {
+                                    text:
+                                        `Observações:\n` +
+                                        `Valor recebido em dinheiro: R$ ${parseFloat(dinheiro?.valor || 0).toFixed(2)}\n` +
+                                        `Esta nota Nº ${nota} não possui valor fiscal.\n` +
+                                        `Nota emitida on-line pelo site: https://www.centroinfo.com.br`,
+                                    fontSize: 9
+                                }
+                            ]]
+                        },
+                        layout: 'lightHorizontalLines'
+                    }
                 ],
                 styles: {
-                    title: {
+                    empresaTitulo: {
+                        fontSize: 11,
                         bold: true,
-                        fontSize: 9,
+                        color: '#1a1a1a'
                     },
-                    columnsFilial: {
-                        fontSize: 9,
-                        fonts: "Helvetica-BoldOblique",
-                        alignment: "left",
-                        margin: 2,
-                        bold: false,
+                    sectionHeader: {
+                        bold: true,
+                        fontSize: 10,
+                        margin: [0, 10, 0, 5],
+                        color: '#333'
                     },
-                    columnsPerson: {
-                        fontSize: 9,
-                        alignment: "left",
-                        margin: 2
+                    valorDestaque: {
+                        fontSize: 12,
+                        bold: true,
+                        alignment: 'center',
+                        margin: [0, 0, 0, 10]
                     },
                     columnsNota: {
                         fontSize: 9,
                         alignment: "left",
-                        color: "",
-                        margin: 2,
-                        bold: false,
+                        margin: 2
+                    },
+                    columnsPerson: {
+                        fontSize: 9,
+                        margin: 2
                     },
                     columnsTitle: {
                         fontSize: 9,
                         bold: true,
-                        fillColor: "",
-                        color: "black",
+                        fillColor: '#eeeeee',
+                        color: 'black',
                         margin: 2
-                    },
+                    }
                 }
             };
 
             const pdfDoc = printer.createPdfKitDocument(docDefinitions)
-
             pdfDoc.pipe(fs.createWriteStream("res_note.pdf"))
-
             const chunks: any = [];
-
             pdfDoc.on("data", (chunk: any) => {
                 chunks.push(chunk)
-            })
-
+            });
             pdfDoc.end();
-
             pdfDoc.on("end", () => {
                 const result = Buffer.concat(chunks)
-                response.end(result)
-                // console.log(result)
-            })
-
-            //console.log("Relatório concluido");
-            handleService.setSendMailNote(num_nota, email, telefone, comprador, endereco)
-
+                response.end(result);
+            });
+            // handleService.setSendMailNote(num_note, email, telefone, comprador, endereco)
         } catch (err) {
             response.json("Error Occurred ! " + err)
         }
