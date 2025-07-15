@@ -1,5 +1,5 @@
 import { HandleService } from "../../Providers/Mail/nodeMailer"
-import { IReportNotes } from "../../Interfaces/Note/Note"
+import { IReportNotes, TItemsNote, TMoney, TNote } from "../../Interfaces/Note/Note"
 import { mountTableInvoice } from "./utils/mountTableInvoice"
 import { mountTableItems } from "./utils/mountTableItems"
 import { NotesServices } from "../../Services/Notes/NotesServices"
@@ -7,29 +7,29 @@ import { Request, Response } from "express"
 import fs from 'fs'
 import PDFPrinter from 'pdfmake'
 import QRCode from 'qrcode';
+import { Note } from "../../Entities/Note/Note"
 
 const handleService: HandleService = new HandleService()
-const noteService = new NotesServices()
+const notesServices = new NotesServices()
 
 export class ConttrollersNotes {
 
     async select(request: Request, response: Response) {
         try {
             const { num_nota: num_note } = request.params;
-            const resNota = await noteService.getNote(num_note);
-            const { nota, filial, comprador, cpf, endereco, num_endereco,
-                telefone, usuario, email, emitida, val_rec, desc_venda,
-                total_venda, fantasia, f_endereco, cnpj, inscricao,
-                f_telefone, f_email, bairro, cep, uf, municipio } = resNota;
-            const resItemsNota = await noteService.getItemsNote(num_note);
-            const itens = resItemsNota;
-            const invoices = await noteService.getInvoice(num_note);
-            const resMoney = await noteService.getMoney(num_note);
-            const dinheiro: number | any = resMoney;
-            const bodyItems = await mountTableItems(itens);
-            const bodyInvoice = await mountTableInvoice(invoices);
-            // const qrText = `Nota Nº ${nota} - Emitida em: ${new Date(emitida).toLocaleDateString('pt-BR')}`;
-            const qrText = `https://api.centroinfo.com.br/note/${nota}`;
+            const res: TNote = await notesServices.getNote(num_note);
+            const itens = await notesServices.getItemsNote(num_note);
+            const invoices = await notesServices.getInvoice(num_note);
+            const money: TMoney = await notesServices.getMoney(num_note);
+            const newNote: TNote = new Note(res.nota, res.filial, res.comprador,
+                res.cpf, res.endereco, res.num_endereco, res.telefone, res.usuario,
+                res.email, res.emitida, res.val_rec, res.desc_venda,
+                res.total_venda, res.fantasia, res.f_endereco, res.cnpj, res.inscricao,
+                res.f_telefone, res.f_email, res.bairro, res.cep, res.uf,
+                res.municipio, itens, invoices, money);
+            const bodyItems = await mountTableItems(newNote.items ?? []);
+            const bodyInvoice = await mountTableInvoice(newNote.invoices ?? []);
+            const qrText = `https://api.centroinfo.com.br/note/${newNote.nota}`;
             const qrDataUrl = await QRCode.toDataURL(qrText); // Gera imagem base64
 
             const fonts = {
@@ -74,20 +74,20 @@ export class ConttrollersNotes {
                             {
                                 width: '*',
                                 text: [
-                                    { text: `${fantasia}\n`, style: 'empresaTitulo' },
-                                    `Filial: ${filial}\n`,
-                                    `CNPJ: ${cnpj} | IE: ${inscricao}\n`,
-                                    `Endereço: ${f_endereco}\n`,
-                                    `Telefone: ${f_telefone} | Email: ${f_email}`
+                                    { text: `${newNote.fantasia}\n`, style: 'empresaTitulo' },
+                                    `Filial: ${newNote.filial}\n`,
+                                    `CNPJ: ${newNote.cnpj} | IE: ${newNote.inscricao}\n`,
+                                    `Endereço: ${newNote.f_endereco}\n`,
+                                    `Telefone: ${newNote.f_telefone} | Email: ${newNote.f_email}`
                                 ],
                                 margin: [10, 0, 0, 0],
                                 fontSize: 9
                             },
                             {
                                 text: [
-                                    { text: `Nota de Venda Nº ${String(nota).padStart(6, '0')}\n`, bold: true },
+                                    { text: `Nota de Venda Nº ${String(newNote.nota).padStart(6, '0')}\n`, bold: true },
                                     `Espécie: [PE]\n`,
-                                    `Emissão: ${new Date(emitida).toLocaleDateString('pt-BR')}`
+                                    `Emissão: ${new Date(newNote.emitida).toLocaleDateString('pt-BR')}`
                                 ],
                                 alignment: 'right',
                                 fontSize: 9
@@ -108,12 +108,12 @@ export class ConttrollersNotes {
                         table: {
                             widths: ["50%", "50%"],
                             body: [
-                                [`Nome: ${comprador}`, `Telefone: ${telefone}`],
-                                [`CPF: ${cpf}`, ``],
-                                [`Endereço: ${endereco}, Nº ${num_endereco}`, `Bairro: ${bairro}`],
-                                [`Cidade: ${municipio}`, `Estado: ${uf}`],
-                                [`CEP: ${cep}`, `Email: ${email}`],
-                                [`Usuário: ${usuario}`, ``]
+                                [`Nome: ${newNote.comprador}`, `Telefone: ${newNote.telefone}`],
+                                [`CPF: ${newNote.cpf}`, ``],
+                                [`Endereço: ${newNote.endereco}, Nº ${newNote.num_endereco}`, `Bairro: ${newNote.bairro}`],
+                                [`Cidade: ${newNote.municipio}`, `Estado: ${newNote.uf}`],
+                                [`CEP: ${newNote.cep}`, `Email: ${newNote.email}`],
+                                [`Usuário: ${newNote.usuario}`, ``]
                             ]
                         }
                     },
@@ -121,7 +121,7 @@ export class ConttrollersNotes {
                     // Valor recebido
                     { text: '\nVALOR RECEBIDO EM DINHEIRO / ESPÉCIE', style: 'sectionHeader' },
                     {
-                        text: `R$ ${parseFloat(dinheiro?.valor || 0).toFixed(2)}`,
+                        text: `R$ ${parseFloat(newNote.money?.valor || '0').toFixed(2)}`,
                         style: 'valorDestaque'
                     },
 
@@ -154,10 +154,10 @@ export class ConttrollersNotes {
                         table: {
                             widths: ['25%', '25%', '25%', '25%'],
                             body: [[
-                                { text: `Produtos/Serviços:\nR$ ${total_venda}`, alignment: 'right' },
-                                { text: `Desconto:\nR$ ${desc_venda}`, alignment: 'right' },
-                                { text: `Total a pagar:\nR$ ${val_rec}`, alignment: 'right' },
-                                { text: `Total Nota:\nR$ ${val_rec}`, alignment: 'right' }
+                                { text: `Produtos/Serviços:\nR$ ${newNote.total_venda}`, alignment: 'right' },
+                                { text: `Desconto:\nR$ ${newNote.desc_venda}`, alignment: 'right' },
+                                { text: `Total a pagar:\nR$ ${newNote.val_rec}`, alignment: 'right' },
+                                { text: `Total Nota:\nR$ ${newNote.val_rec}`, alignment: 'right' }
                             ]]
                         },
                         margin: [0, 5, 0, 10]
@@ -172,8 +172,8 @@ export class ConttrollersNotes {
                                 {
                                     text:
                                         `Observações:\n` +
-                                        `Valor recebido em dinheiro: R$ ${parseFloat(dinheiro?.valor || 0).toFixed(2)}\n` +
-                                        `Esta nota Nº ${String(nota).padStart(6, '0')} não possui valor fiscal.\n` +
+                                        `Valor recebido em dinheiro: R$ ${parseFloat(money?.valor || '0').toFixed(2)}\n` +
+                                        `Esta nota Nº ${String(newNote.nota).padStart(6, '0')} não possui valor fiscal.\n` +
                                         `Nota emitida on-line pelo site: https://www.centroinfo.com.br`,
                                     fontSize: 9
                                 }
@@ -236,7 +236,7 @@ export class ConttrollersNotes {
                 const result = Buffer.concat(chunks)
                 response.end(result);
             });
-            handleService.setSendMailNote(num_note, email, telefone, comprador, endereco)
+            // handleService.setSendMailNote(num_note, email, telefone, comprador, endereco)
         } catch (err) {
             response.json("Error Occurred ! " + err)
         }

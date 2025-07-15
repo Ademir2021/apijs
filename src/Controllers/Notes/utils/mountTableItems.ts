@@ -1,4 +1,6 @@
-export async function mountTableItems(itens: any[]) {
+import { TItemsNote } from "../../../Interfaces/Note/Note";
+
+export async function mountTableItems(itens: TItemsNote[]) {
     const header = [
         { text: "Item", style: "columnsTitle" },
         { text: "Descrição produtos", style: "columnsTitle" },

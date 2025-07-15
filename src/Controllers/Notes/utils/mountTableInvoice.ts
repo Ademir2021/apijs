@@ -1,4 +1,6 @@
-export async function mountTableInvoice(faturas: any[]) {
+import { TInvoicesNote } from "../../../Interfaces/Note/Note";
+
+export async function mountTableInvoice(invoices: TInvoicesNote[]) {
     const header = [
         { text: "Número", style: "columnsTitle" },
         { text: "Tipo", style: "columnsTitle" },
@@ -6,11 +8,11 @@ export async function mountTableInvoice(faturas: any[]) {
         { text: "Valor", style: "columnsTitle" },
     ];
 
-    const rows = faturas.map(fatura => [
-        fatura.id_conta,
-        fatura.tipo,
-        new Date(fatura.vencimento).toLocaleDateString("pt-BR"),
-        fatura.valor
+    const rows = invoices.map(invoice => [
+        invoice.id_conta,
+        invoice.tipo,
+        new Date(invoice.vencimento).toLocaleDateString("pt-BR"),
+        invoice.valor
     ]);
 
     return [header, ...rows];
