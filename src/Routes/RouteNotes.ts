@@ -1,9 +1,9 @@
 import { Router } from "express"
-import { ConttrollersNotes } from "../Controllers/Notes/NotesControllers";
+import { ConttrolersNotes } from "../Controllers/Notes/NotesControllers";
 
 const routeNotes = Router();
-const conttrollersNotes = new ConttrollersNotes()
+const conttrolersNotes = new ConttrolersNotes()
 
-routeNotes.get('/note/:num_nota', conttrollersNotes.select)
+routeNotes.get('/note/:num_nota', conttrolersNotes.createNote)
 
 export { routeNotes }

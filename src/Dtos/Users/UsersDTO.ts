@@ -28,7 +28,7 @@ class UsersDTO {
     async updateUser(User: IUser) {
         const user: any = await this.findUser(User)
         if (user[0].id === User.id) {
-            const user = await new UserDAO().updateUSer(User)
+            const user = await new UserDAO().updateUser(User)
             return (msgUserUpdatedSuccessfully)
         } else {
             return (msgUserNotFound)

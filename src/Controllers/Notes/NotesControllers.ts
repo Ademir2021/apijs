@@ -1,20 +1,21 @@
-import { HandleService } from "../../Providers/Mail/nodeMailer"
-import { IReportNotes, TItemsNote, TMoney, TNote } from "../../Interfaces/Note/Note"
-import { mountTableInvoice } from "./utils/mountTableInvoice"
-import { mountTableItems } from "./utils/mountTableItems"
-import { NotesServices } from "../../Services/Notes/NotesServices"
 import { Request, Response } from "express"
 import fs from 'fs'
 import PDFPrinter from 'pdfmake'
 import QRCode from 'qrcode';
+
+import { HandleService } from "../../Providers/Mail/nodeMailer"
+import { IReportNotes, TMoney, TNote } from "../../Interfaces/Note/Note"
+import { mountTableInvoice } from "./utils/mountTableInvoice"
+import { mountTableItems } from "./utils/mountTableItems"
 import { Note } from "../../Entities/Note/Note"
+import { NotesServices } from "../../Services/Notes/NotesServices"
 
 const handleService: HandleService = new HandleService()
 const notesServices = new NotesServices()
 
-export class ConttrollersNotes {
+class ConttrolersNotes {
 
-    async select(request: Request, response: Response) {
+    async createNote(request: Request, response: Response) {
         try {
             const { num_nota: num_note } = request.params;
             const res: TNote = await notesServices.getNote(num_note);
@@ -237,8 +238,10 @@ export class ConttrollersNotes {
                 response.end(result);
             });
             // handleService.setSendMailNote(num_note, email, telefone, comprador, endereco)
-        } catch (err) {
+        } catch (err: unknown) {
             response.json("Error Occurred ! " + err)
         }
     };
 }
+
+export { ConttrolersNotes }

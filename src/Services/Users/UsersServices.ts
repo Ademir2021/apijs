@@ -25,7 +25,7 @@ class UsersServices {
     };
     async userRecoverPass(User: IUserRecoverPass) {
         const resp = await new UsersDTO().userRecoverPass(User)
-        const res = await new UserDAO().recoverUpdateUSer(User)
+        const res = await new UserDAO().recoverUpdateUser(User)
         const handleService = new HandleService()
         handleService.setSendMailRecoverUserPass(User.username, User.hash )
         return resp

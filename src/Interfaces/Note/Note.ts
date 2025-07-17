@@ -27,7 +27,7 @@ export type TInvoicesNote = {
                 total_venda, fantasia, f_endereco, cnpj, inscricao,
                 f_telefone, f_email, bairro, cep, uf, municipio */
 export type TNote = {
-    nota: string //id_nota
+    nota: string  //id_nota
     filial: string
     comprador: string
     cpf: string

@@ -28,7 +28,7 @@ class Note extends NoteDAO implements TNote {
     municipio: string;
     items?: TItemsNote[] = []
     invoices?: TInvoicesNote[] = [];
-    money:TMoney
+    money: TMoney
     constructor(
         nota: string,
         filial: string,
@@ -55,7 +55,7 @@ class Note extends NoteDAO implements TNote {
         municipio: string,
         items: TItemsNote[],
         invoices: TInvoicesNote[],
-        money:TMoney
+        money: TMoney
     ) {
         super()
         this.nota = nota;
@@ -86,6 +86,7 @@ class Note extends NoteDAO implements TNote {
         this.invoices = invoices
         this.money = money
     }
+
 
 }
 

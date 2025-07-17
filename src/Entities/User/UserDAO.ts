@@ -3,46 +3,86 @@ import { DAO } from "../DAO/DAO";
 import { IUser, IUserRecoverPass } from "../../Interfaces/User/User";
 
 class UserDAO extends DAO {
-    public static table = "users"
+    public static table = "users";
+
     async insertUser(User: IUser) {
         try {
-            await postgreSQL.query('INSERT INTO ' + UserDAO.table + ' (name, username, password) VALUES (' + "'" + User.name + "', '" + User.username + "', '" + User.password + "')")
+            const query = `
+                INSERT INTO ${UserDAO.table} (name, username, password)
+                VALUES ($1, $2, $3)
+            `;
+            const values = [User.name, User.username, User.password];
+            await postgreSQL.query(query, values);
         } catch (err) {
-            return (new UserDAO().errors(err))
+            return new UserDAO().errors(err);
         }
-    };
-    async updateUSer(User: IUser) {
+    }
+
+    async updateUser(User: IUser) {
         try {
-            await postgreSQL.query("UPDATE " + UserDAO.table + " SET updated_at = now(), name = '" + User.name + "', username = '" + User.username + "', password = '" + User.password + "' WHERE id = '" + User.id + "'")
+            const query = `
+                UPDATE ${UserDAO.table}
+                SET 
+                    updated_at = now(),
+                    name = $1,
+                    username = $2,
+                    password = $3
+                WHERE id = $4
+            `;
+            const values = [User.name, User.username, User.password, User.id];
+            await postgreSQL.query(query, values);
         } catch (err) {
-            return (new UserDAO().errors(err))
+            return new UserDAO().errors(err);
         }
-    };
+    }
+
     async selectUsername(User: IUser) {
         try {
-            const res = await postgreSQL.query("SELECT id, name, username, password, privilege FROM " + UserDAO.table + " WHERE username = '" + User.username + "'")
-            return res.rows
+            const query = `
+                SELECT id, name, username, password, privilege
+                FROM ${UserDAO.table}
+                WHERE username = $1
+            `;
+            const values = [User.username];
+            const res = await postgreSQL.query(query, values);
+            return res.rows;
         } catch (err) {
-            return (new UserDAO().errors(err))
+            return new UserDAO().errors(err);
         }
-    };
+    }
 
-    async userRecoverPass(User:IUserRecoverPass){
+    async userRecoverPass(User: IUserRecoverPass) {
         try {
-            const res = await postgreSQL.query("SELECT username FROM " + UserDAO.table + " WHERE username = '" + User.username + "'")
-            return res.rows
+            const query = `
+                SELECT username
+                FROM ${UserDAO.table}
+                WHERE username = $1
+            `;
+            const values = [User.username];
+            const res = await postgreSQL.query(query, values);
+            return res.rows;
         } catch (err) {
-            return (new UserDAO().errors(err))
+            return new UserDAO().errors(err);
         }
-    };
+    }
 
-    async recoverUpdateUSer(User: IUserRecoverPass) {
+    async recoverUpdateUser(User: IUserRecoverPass) {
         try {
-            await postgreSQL.query("UPDATE " + UserDAO.table + " SET updated_at = now(), password = '" + User.password + "' WHERE username = '" + User.username + "'")
+            const query = `
+                UPDATE ${UserDAO.table}
+                SET 
+                    updated_at = now(),
+                    password = $1
+                WHERE username = $2
+            `;
+            const values = [User.password, User.username];
+            await postgreSQL.query(query, values);
         } catch (err) {
-            return (new UserDAO().errors(err))
+            return new UserDAO().errors(err);
         }
-    };
+    }
 }
+
 export { UserDAO }
+
 
