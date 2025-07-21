@@ -1,6 +1,8 @@
 export type IPerson = {
     id: number
     name: string
+    date_of_birth:Date | "2000-01-01" | any
+    age?:number
     cpf_pers: string
     phone_pers: string
     address_pers: string
@@ -20,6 +22,8 @@ export type IPerson = {
 export type TPerson = {
     id_person: number
     name_pers: string
+    date_of_birth:Date | "2000-01-01" | any
+    // age:number
     cpf_pers: string
     phone_pers: string
     address_pers: string

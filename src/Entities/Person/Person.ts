@@ -2,6 +2,8 @@ import { IPerson } from "../../Interfaces/Person/Person";
 import { PersonDAO } from "./PersonDAO";
 
 class Person extends PersonDAO implements IPerson {
+    date_of_birth: Date | "2000-01-01"
+    age = 0
     cpf_pers = '0'
     phone_pers = ''
     address_pers = ''
@@ -19,6 +21,7 @@ class Person extends PersonDAO implements IPerson {
     constructor(
         id: number,
         name: string,
+        date_of_birth: Date | "2000-01-01" | any,
         cpf_pers: string,
         phone_pers: string,
         address_pers: string,
@@ -37,6 +40,8 @@ class Person extends PersonDAO implements IPerson {
         super()
         this.id = id
         this.name = name
+        this.date_of_birth = date_of_birth
+        this.age = this.calcularIdade(date_of_birth)
         this.cpf_pers = cpf_pers
         this.phone_pers = phone_pers
         this.address_pers = address_pers
@@ -51,6 +56,18 @@ class Person extends PersonDAO implements IPerson {
         this.fantasia = fantasia
         this.limit_cred = limit_cred
         this.fk_grupo = fk_grupo
+    };
+
+    private calcularIdade(dataNascimento: string): number {
+        const hoje = new Date();
+        const nascimento = new Date(dataNascimento);
+        let idade = hoje.getFullYear() - nascimento.getFullYear();
+        const mesAtual = hoje.getMonth();
+        const mesNascimento = nascimento.getMonth();
+        if (mesAtual < mesNascimento ||
+            (mesAtual === mesNascimento && hoje.getDate() < nascimento.getDate())
+        ) { idade--; }
+        return idade;
     }
 }
 

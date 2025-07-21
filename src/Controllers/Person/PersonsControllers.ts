@@ -7,19 +7,21 @@ import { PersonsServices } from "../../Services/Persons/PersonsServices"
 class PersonsControllers {
     async savePerson(request: Request, response: Response) {
         const resp: TPerson = <TPerson>request.body
-        const person: Person = new Person(resp.id_person, resp.name_pers, resp.cpf_pers, resp.phone_pers,
+        const person: Person = new Person(resp.id_person, resp.name_pers, resp.date_of_birth, resp.cpf_pers, resp.phone_pers,
             resp.address_pers, resp.num_address, resp.bairro_pers, resp.fk_cep, resp.fk_name_filial, resp.fk_id_user,
             resp.rg, resp.cnpj, resp.inscricao, resp.fantasia, resp.limit_cred, resp.fk_grupo);
         const res = await new PersonsServices().savePerson(person)
         response.json(res)
+        // console.log(person)
     };
     async updatePerson(request: Request, response: Response) {
         const resp: TPerson = <TPerson>request.body
-        const person: Person = new Person(resp.id_person, resp.name_pers, resp.cpf_pers, resp.phone_pers,
+        const person: Person = new Person(resp.id_person, resp.name_pers, resp.date_of_birth, resp.cpf_pers, resp.phone_pers,
             resp.address_pers, resp.num_address, resp.bairro_pers, resp.fk_cep, resp.fk_name_filial, resp.fk_id_user,
             resp.rg, resp.cnpj, resp.inscricao, resp.fantasia, resp.limit_cred, resp.fk_grupo)
         const res = await new PersonsServices().updatePerson(person)
         response.json(res)
+        // console.log(person)
     };
     async listPersons(request: Request, response: Response) {
         const resp = await new PersonsServices().listPersons()
