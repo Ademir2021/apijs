@@ -89,7 +89,7 @@ class ProductDAO extends DAO {
             }
 
             if (list.fk_sub_sector) {
-                conditions.push(`fk_sector = $${paramIndex++}`);
+                conditions.push(`fk_sub_sector = $${paramIndex++}`);
                 values.push(list.fk_sub_sector);
             }
 
