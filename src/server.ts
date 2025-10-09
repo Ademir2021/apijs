@@ -8,6 +8,7 @@ import { routerSales } from './Routes/RouteSales';
 import { routeNotes } from './Routes/RouteNotes';
 import { routeBrands } from './Routes/RouteBrands';
 import { routeSectors } from './Routes/RouteSectors';
+import { routeSubSectors } from './Routes/RouteSubSectors';
 import { routeCeps } from './Routes/RouteCeps';
 import { routeCities } from './Routes/RouteCity';
 import { routePagSeguro } from './Routes/RoutePagSeguro';
@@ -37,6 +38,7 @@ app.use(routerProducts)
 app.use(routerSales)
 app.use(routeNotes)
 app.use(routeBrands)
+app.use(routeSubSectors)
 app.use(routeSectors)
 app.use(routeCeps)
 app.use(routeCities)

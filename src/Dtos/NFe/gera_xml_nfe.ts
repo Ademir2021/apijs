@@ -36,7 +36,7 @@ class GeraXMLNFe {
             }
         });
 
-        fs.writeFile('xml/nfe.xml', xml, (err) => {// Escrever o XML em um arquivo
+        fs.writeFile('xml/nfe_num_' + jsonNFe.nfeProc.NFe.infNFe.ide.nNF + '.xml', xml, (err) => {// Escrever o XML em um arquivo
             if (err) {
                 throw err;
             }

@@ -1,11 +1,11 @@
-import { IProduct, IBrand, ISector } from "../../Interfaces/Product/Product";
+import { IProduct, IBrand, ISubSector } from "../../Interfaces/Product/Product";
 import { ProductDAO } from "./ProductDAO";
 
 class Product extends ProductDAO implements IProduct {
     valMax = 0
     valMin = 0
     fkBrand = new Brand().id
-    fkSector = new Sector().id
+    fkSubSector = new SubSector().id
     fk_un_med = 1
     barCode = ""
     image = ""
@@ -34,7 +34,7 @@ class Product extends ProductDAO implements IProduct {
         this.valMax = valMax
         this.valMin = valMin
         this.fkBrand = fkBrand
-        this.fkSector = fkSector
+        this.fkSubSector = fkSector
         this.fk_un_med = fk_un_med
         this.barCode = barCode
         this.image = image
@@ -57,7 +57,7 @@ class Brand extends ProductDAO implements IBrand {
     }
 };
 
-class Sector extends ProductDAO implements ISector {
+class SubSector extends ProductDAO implements ISubSector {
     constructor() {
         super()
     }

@@ -237,7 +237,7 @@ class ConttrolersNotes {
                 const result = Buffer.concat(chunks)
                 response.end(result);
             });
-            // handleService.setSendMailNote(num_note, email, telefone, comprador, endereco)
+            handleService.setSendMailNote(num_note, res.email, res.telefone, res.comprador, res.endereco)
         } catch (err: unknown) {
             response.json("Error Occurred ! " + err)
         }

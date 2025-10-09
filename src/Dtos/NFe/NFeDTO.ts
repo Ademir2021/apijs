@@ -42,7 +42,8 @@ class NFeDTO {
         const user = user_[0]
         const items = await new NFeDAO().selectOne(NFeDAO.tbl_items_nota, NFe.id_nota, 'fk_sale')
 
-        let nNF_ = new HandleNFe().formatnNF(nota.id_sale)
+        // let nNF_ = new HandleNFe().formatnNF(nota.id_sale)
+        let nNF_ = String(nota.id_sale).padStart(9, '0')
 
         //Funções para dados de Emitente
         const filial_res = await this.findFilial(filial.fk_person)

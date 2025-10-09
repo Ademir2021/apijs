@@ -10,7 +10,7 @@ type TProduct = {
     val_max_product: number
     val_min_product: number
     fk_brand: number
-    fk_sector: number
+    fk_sub_sector: number
     fk_un_med: number
     bar_code: string
     image: string
@@ -24,7 +24,7 @@ class ProductControllers extends DAO {
     async saveProduct(request: Request, response: Response) {
         const resp: TProduct = <TProduct>request.body
         const product: Product = new Product(resp.id_product, resp.descric_product, resp.val_max_product,
-            resp.val_min_product, resp.fk_brand, resp.fk_sector, resp.fk_un_med, resp.bar_code, resp.image,
+            resp.val_min_product, resp.fk_brand, resp.fk_sub_sector, resp.fk_un_med, resp.bar_code, resp.image,
             resp.fk_classe, resp.fk_grupo_fiscal, resp.fk_tipo_prod, resp.ncm)
         const res = await new ProductsServices().saveProduct(product)
         response.json(res)
@@ -32,7 +32,7 @@ class ProductControllers extends DAO {
     async updateProduct(request: Request, response: Response) {
         const resp: TProduct = <TProduct>request.body
         const product: Product = new Product(resp.id_product, resp.descric_product, resp.val_max_product,
-            resp.val_min_product, resp.fk_brand, resp.fk_sector, resp.fk_un_med, resp.bar_code, resp.image,
+            resp.val_min_product, resp.fk_brand, resp.fk_sub_sector, resp.fk_un_med, resp.bar_code, resp.image,
             resp.fk_classe, resp.fk_grupo_fiscal, resp.fk_tipo_prod, resp.ncm)
         const res = await new ProductsServices().updateProduct(product)
         response.json(res)

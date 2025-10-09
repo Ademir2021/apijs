@@ -16,7 +16,7 @@ class HandleNFe {
 
     /**
      * @description Gera Digito verificador
-     * const cUf = '42
+     * const cUf = '42'
      * const cnpj = '18069383000110'
      * const dt = new Date();
      * const month = dt.getUTCMonth() + 1;
@@ -34,7 +34,7 @@ class HandleNFe {
 
     dvNFe(chaveAcesso: any) {
         if (chaveAcesso.length !== 44) {
-            throw new Error("A chave de acesso deve ter 43 dígitos.");
+            throw new Error("A chave de acesso deve ter 44 dígitos.");
         }
         const pesos = [4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
         let soma = 0;

@@ -8,7 +8,7 @@ class ProductDAO extends DAO {
         try {
             const query = `
                 INSERT INTO ${ProductDAO.table}
-                (descric_product, val_max_product, val_min_product, fk_brand, fk_sector, fk_un_med, bar_code, image, fk_classe, fk_grupo_fiscal, fk_tipo_prod, ncm)
+                (descric_product, val_max_product, val_min_product, fk_brand, fk_sub_sector, fk_un_med, bar_code, image, fk_classe, fk_grupo_fiscal, fk_tipo_prod, ncm)
                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
             `;
             const values = [
@@ -16,7 +16,7 @@ class ProductDAO extends DAO {
                 Product.valMax,
                 Product.valMin,
                 Product.fkBrand,
-                Product.fkSector,
+                Product.fkSubSector,
                 Product.fk_un_med,
                 Product.barCode,
                 Product.image,
@@ -41,7 +41,7 @@ class ProductDAO extends DAO {
                     val_max_product = $2,
                     val_min_product = $3,
                     fk_brand = $4,
-                    fk_sector = $5,
+                    fk_sub_sector = $5,
                     fk_un_med = $6,
                     bar_code = $7,
                     image = $8,
@@ -56,7 +56,7 @@ class ProductDAO extends DAO {
                 Product.valMax,
                 Product.valMin,
                 Product.fkBrand,
-                Product.fkSector,
+                Product.fkSubSector,
                 Product.fk_un_med,
                 Product.barCode,
                 Product.image,
@@ -88,9 +88,9 @@ class ProductDAO extends DAO {
                 values.push(list.fk_brand);
             }
 
-            if (list.fk_sector) {
+            if (list.fk_sub_sector) {
                 conditions.push(`fk_sector = $${paramIndex++}`);
-                values.push(list.fk_sector);
+                values.push(list.fk_sub_sector);
             }
 
             const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(" OR ")}` : "";

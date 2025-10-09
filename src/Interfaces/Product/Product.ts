@@ -4,7 +4,7 @@ export type IProduct = {
     valMax:number
     valMin:number
     fkBrand:number
-    fkSector:number
+    fkSubSector:number
     fk_un_med: number
     barCode:string
     image:string
@@ -19,14 +19,15 @@ export type IBrand = {
     name:string
 }
 
-export type ISector = {
+export type ISubSector = {
     id:number
     name:string
+    description?:string
 }
 
 export type IListProductQuery = {
     id_product:number
     descric_product: string
     fk_brand:number
-    fk_sector:number
+    fk_sub_sector:number
 }
