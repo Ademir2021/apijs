@@ -6,6 +6,7 @@ const host_email = process.env.HOST_EMAIL
 const port_email = process.env.PORT_EMAIL
 const user_email = process.env.USER_EMAIL
 const pass_email = process.env.PASS_EMAIL
+const title = process.env.TITLE
 
 export class HandleService {
     setSendMail(name: string, email: string, phone: string, comments: string) {
@@ -21,8 +22,8 @@ export class HandleService {
         });
         const transporter = nodemailer.createTransport(smtpConfig);
         const message: any = {
-            from: "Centro Informática<centroserra@gmail.com>",
-            to: "centroserra@gmail.com," + email,
+            from: title, user_email,
+            to: user_email + "," + email,
             subject: "Contato do Formulário on-line de clientes",
             html: "<b>Mensagem de:</b> " +
                 "<br>" + "<b>Cliente:</b> " + name +
@@ -55,8 +56,8 @@ export class HandleService {
         });
         const transporter = nodemailer.createTransport(smtpConfig);
         const message: any = {
-            from: "Centro Informática<centroserra@gmail.com>",
-            to: "centroserra@gmail.com," + email,
+            from: title, user_email,
+               to: user_email + "," + email,
             subject: "Envio da Nota de Compra Nº " + note,
             html: "<b>Comprador:</b> " + client +
                 "<br>" + "<b>Nota:</b> " + note +
@@ -82,7 +83,7 @@ export class HandleService {
         });
     }
 
-    setSendMailRecoverUserPass(email:string, hash:string) {
+    setSendMailRecoverUserPass(email: string, hash: string) {
         const smtpConfig = smtpTransport({
             service: "gmail",
             host: host_email,
@@ -95,8 +96,8 @@ export class HandleService {
         });
         const transporter = nodemailer.createTransport(smtpConfig);
         const message: any = {
-            from: "Centro Informática<centroserra@gmail.com>",
-            to: "centroserra@gmail.com," + email,
+            from: title, user_email,
+               to: user_email + "," + email,
             subject: "Recuperar Senha",
             html: "<b>Conforme solicitado segue recuperação de acesso da sua conta: " +
                 "<br>" + "<b>Email do Usuário:</b> " + email +
