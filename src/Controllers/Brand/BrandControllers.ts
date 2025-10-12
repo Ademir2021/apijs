@@ -17,14 +17,14 @@ class BrandsControllers extends DAO {
     async insert(request: Request, response: Response){
         const res:TBrand = <TBrand>request.body
         const brand = new Brand(res.id_brand, res.name_brand)
-        const resp = new BrandsServices().insert(brand)
+        const resp = await new BrandsServices().insert(brand)
         response.json(resp)
     }
 
     async update(request: Request, response: Response){
         const res:TBrand = <TBrand>request.body
         const brand = new Brand(res.id_brand, res.name_brand)
-        const resp = new BrandsServices().update(brand)
+        const resp = await new BrandsServices().update(brand)
         response.json(resp)
     }
 }
