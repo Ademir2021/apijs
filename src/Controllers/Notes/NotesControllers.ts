@@ -1,4 +1,5 @@
 import { Request, Response } from "express"
+require('dotenv').config()
 import fs from 'fs'
 import PDFPrinter from 'pdfmake'
 import QRCode from 'qrcode';
@@ -12,6 +13,10 @@ import { NotesServices } from "../../Services/Notes/NotesServices"
 
 const handleService: HandleService = new HandleService()
 const notesServices = new NotesServices()
+
+const url_note:any = process.env.URL_NOTE
+const url_site:any = process.env.URL_SITE
+const title:any = process.env.TITLE
 
 class ConttrolersNotes {
 
@@ -30,7 +35,7 @@ class ConttrolersNotes {
                 res.municipio, itens, invoices, money);
             const bodyItems = await mountTableItems(newNote.items ?? []);
             const bodyInvoice = await mountTableInvoice(newNote.invoices ?? []);
-            const qrText = `https://api.centroinfo.com.br/note/${newNote.nota}`;
+            const qrText = `${url_note}/${newNote.nota}`;
             const qrDataUrl = await QRCode.toDataURL(qrText); // Gera imagem base64
 
             const fonts = {
@@ -50,7 +55,7 @@ class ConttrolersNotes {
                     return {
                         columns: [
                             {
-                                text: 'CentroInfo - https://www.centroinfo.com.br',
+                                text: `${title} - ${url_site}`,
                                 alignment: 'left',
                                 fontSize: 7,
                                 margin: [40, 0, 0, 0]
@@ -175,7 +180,7 @@ class ConttrolersNotes {
                                         `Observações:\n` +
                                         `Valor recebido em dinheiro: R$ ${parseFloat(money?.valor || '0').toFixed(2)}\n` +
                                         `Esta nota Nº ${String(newNote.nota).padStart(6, '0')} não possui valor fiscal.\n` +
-                                        `Nota emitida on-line pelo site: https://www.centroinfo.com.br`,
+                                        `Nota emitida on-line pelo site: ${url_site}`,
                                     fontSize: 9
                                 }
                             ]]
