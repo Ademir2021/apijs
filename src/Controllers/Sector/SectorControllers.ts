@@ -11,7 +11,7 @@ export type TSector = {
 
 class SectorConttrollers extends DAO {
   async findAll(request: Request, response: Response) {
-    const sectors = await new SectorConttrollers().select('sectors', 'id_sector')
+    const sectors = await new SectorConttrollers().select('sectors', 'name_sector')
     response.json(sectors)
   };
 

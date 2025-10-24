@@ -11,7 +11,7 @@ type TClasseProd = {
 class ContabilidadeControllers extends DAO {
 
     async findAllClassesProds(request: Request, response: Response) {
-        const classesProds = await new ContabilidadeControllers().select('classes_prods', 'id_classe')
+        const classesProds = await new ContabilidadeControllers().select('classes_prods', 'name_classe')
         response.json(classesProds)
     };
 

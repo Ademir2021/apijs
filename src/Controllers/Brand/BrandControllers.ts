@@ -10,7 +10,7 @@ export type TBrand = {
 
 class BrandsControllers extends DAO {
     async findAll(request: Request, response: Response) {
-        const brands = await new BrandsControllers().select('brands', 'id_brand')
+        const brands = await new BrandsControllers().select('brands', 'name_brand')
         response.json(brands)
     };
 
