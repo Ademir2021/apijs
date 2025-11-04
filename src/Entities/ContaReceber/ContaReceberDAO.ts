@@ -39,21 +39,42 @@ class ContaReceberDAO extends DAO {
         try {
             const query = `
                 UPDATE ${ContaReceberDAO.table}
-                SET juros = $1,
-                    multa = $2,
-                    desconto = $3,
-                    saldo = $4,
-                    pagamento = $5,
-                    recebimento = $6
-                WHERE id_conta = $7
+                SET 
+                    fk_filial = $1,
+                    tipo = $2,
+                    fk_venda = $3,
+                    fk_user = $4,
+                    parcela = $5,
+                    valor = $6,
+                    multa = $7,
+                    juros = $8,
+                    desconto = $9,
+                    emissao = $10,
+                    vencimento = $11,
+                    saldo = $12,
+                    pagamento = $13,
+                    recebimento = $14,
+                    observacao = $15,
+                    fk_pagador = $16
+                WHERE id_conta = $17
             `;
             const values = [
-                ContaRec.juros,
+                ContaRec.fk_filial,
+                ContaRec.tipo,
+                ContaRec.fk_venda,
+                ContaRec.fk_user,
+                ContaRec.parcela,
+                ContaRec.valor,
                 ContaRec.multa,
+                ContaRec.juros,
                 ContaRec.desconto,
+                ContaRec.emissao,
+                ContaRec.vencimento,
                 ContaRec.saldo,
                 ContaRec.pagamento,
                 ContaRec.recebimento,
+                ContaRec.observacao,
+                ContaRec.fk_pagador,
                 ContaRec.id_conta
             ];
             await postgreSQL.query(query, values);

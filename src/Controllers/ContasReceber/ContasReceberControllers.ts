@@ -23,6 +23,7 @@ class ContasReceberControllers {
             resp.desconto, resp.emissao, resp.vencimento, resp.saldo,
             resp.pagamento, resp.recebimento, resp.observacao, resp.fk_pagador)
         const updateConta = await new ContasAReceberServices().update(contaReceber)
+        console.log(updateConta)
         return response.json(updateConta)
     };
     async findAllContasReceberlist(request: Request, response: Response) {

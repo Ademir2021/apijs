@@ -17,7 +17,7 @@ class ContasAReceberDTO {
         return resp;
     };
     async update(contaReceber:IContaAreceber){
-        const resp = new ContaReceberDAO().update(contaReceber)
+        const resp = await new ContaReceberDAO().update(contaReceber)
         return resp
     };
     async listContasAReceberByLoggedInUser(id: number, privilege: number) {

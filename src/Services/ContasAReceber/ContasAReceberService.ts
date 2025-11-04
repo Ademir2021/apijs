@@ -3,15 +3,15 @@ import { IContaAreceber } from "../../Interfaces/ContaReceber/ContaReceber";
 
 class ContasAReceberServices{
    async insert(contaReceber:IContaAreceber){
-      const resp = new ContasAReceberDTO().insert(contaReceber)
+      const resp = await new ContasAReceberDTO().insert(contaReceber)
       return resp;
    };
    async update(contaReceber:IContaAreceber){
-      const resp = new ContasAReceberDTO().update(contaReceber)
+      const resp = await new ContasAReceberDTO().update(contaReceber)
       return resp;
    };
    async listContasAReceberByLoggedInUser(id: number, privilege: number){
-        const resp = new ContasAReceberDTO().listContasAReceberByLoggedInUser(id, privilege)
+        const resp = await new ContasAReceberDTO().listContasAReceberByLoggedInUser(id, privilege)
         return resp;
    };
 }
