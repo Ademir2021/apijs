@@ -13,11 +13,11 @@ class ContasAPagarDTO {
         return (contas)
     };
     async insert(contaPagar:IContaAPagar){
-        const res = new ContaPagarDAO().insert(contaPagar)
+        const res = await new ContaPagarDAO().insert(contaPagar)
         return res;
     };
     async update(contaPagar:IContaAPagar){
-        const res = new ContaPagarDAO().update(contaPagar)
+        const res = await new ContaPagarDAO().update(contaPagar)
         return res;
     };
     async listContasAPagarByLoggedInUser(id: number, privilege: number) {
