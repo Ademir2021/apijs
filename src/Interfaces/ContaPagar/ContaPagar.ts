@@ -18,3 +18,19 @@ export type IContaAPagar = {
     fk_beneficiario:number
     fk_despesa:number
 }
+
+export type IDespesa = {
+    id:number 
+    name:string 
+    fk_setor:number
+}
+
+export type ITipoSetor = {
+    tipo: 'Fixa' | 'Variavel'
+}
+
+export type ISetorDespesa = {
+    id:number
+    name:string 
+    tipo:ITipoSetor | ''
+}

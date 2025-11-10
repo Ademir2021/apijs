@@ -29,7 +29,6 @@ class ContaPagarDAO extends DAO {
                 fk_despesa = $17
             WHERE id_conta = $18
         `;
-
             const values = [
                 ContaAPagar.fk_filial,
                 ContaAPagar.tipo,
@@ -85,7 +84,6 @@ class ContaPagarDAO extends DAO {
             return new ContaPagarDAO().errors(err);
         }
     }
-
 }
 
 export { ContaPagarDAO }
