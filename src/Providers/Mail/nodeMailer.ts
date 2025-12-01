@@ -66,8 +66,8 @@ export class HandleService {
                 "<br><br>" + "<b>Endereço:</b> " + address,
             attachments: [
                 {
-                    filename: `../notes/note_${note}.pdf`,
-                    path: `../notes/note_${note}.pdf`
+                    filename: 'res_note.pdf',
+                    path: 'res_note.pdf'
                 },
             ],
             headers: {
