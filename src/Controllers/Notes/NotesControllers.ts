@@ -232,7 +232,7 @@ class ConttrolersNotes {
             };
 
             const pdfDoc = printer.createPdfKitDocument(docDefinitions)
-            pdfDoc.pipe(fs.createWriteStream("notes/note_" + num_note + ".pdf"))
+            pdfDoc.pipe(fs.createWriteStream(`notes/note_${num_note}.pdf`))
             const chunks: any = [];
             pdfDoc.on("data", (chunk: any) => {
                 chunks.push(chunk)
