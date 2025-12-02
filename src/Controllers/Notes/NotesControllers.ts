@@ -233,7 +233,6 @@ class ConttrolersNotes {
                 },
             };
 
-
             const pdfDoc = printer.createPdfKitDocument(docDefinitions)
             pdfDoc.pipe(fs.createWriteStream(`notes/note_${num_note}.pdf`))
             const chunks: any = [];
@@ -245,7 +244,7 @@ class ConttrolersNotes {
                 const result = Buffer.concat(chunks)
                 response.end(result);
             });
-            // handleService.setSendMailNote(num_note, res.email, res.telefone, res.comprador, res.endereco)
+            handleService.setSendMailNote(num_note, res.email, res.telefone, res.comprador, res.endereco)
         } catch (err: unknown) {
             response.json("Error Occurred ! " + err)
         }
@@ -269,21 +268,12 @@ class ConttrolersNotes {
                 res.municipio, itens, invoices, money
             );
 
-            const bodyItems = await mountTableItems(newNote.items ?? []);
-            const bodyInvoice = await mountTableInvoice(newNote.invoices ?? []);
-
-            const qrText = `${process.env.URL_NOTE}/${newNote.nota}`;
-            const qrDataUrl = await QRCode.toDataURL(qrText);
-
             const filePath: any = await handleTicket.generateFileTXT(
                 newNote,
                 itens,
                 invoices,
                 `ticket_${newNote.nota}.txt`
             );
-
-
-            // 🔥 ENVIA O ARQUIVO PARA DOWNLOAD
             return response.download(filePath, `ticket_${newNote.nota}.txt`, (err) => {
                 if (err) {
                     console.error("Erro ao enviar arquivo:", err);

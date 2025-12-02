@@ -81,10 +81,10 @@ SEQ | CÒDIGO | DESCRIÇÃO | QTD | UN | VL UN | VL TOTAL
 ${Itens.map((ITem) =>
             `${id += 1}` + " " +
             ITem.item.toString().padEnd(3, ' ') +
-            ITem.descricao.padEnd(50, ' ') + ' ' +
-            ITem.quant.toString() + ' X ' +
-            ITem.valor.toString().padEnd(9, ' ') +
-            ITem.total
+            ITem.descricao.padEnd(66, ' ') + ' ' +
+            ITem.quant.toString() + ' UN ' + 'X ' +
+            ITem.valor.toString().padEnd(10, ' ') +
+            ITem.total.toString()
         ).join(`\n`)}
 ---------------------------------------------------------
 Qtd. Total de Itens                           ${Itens.length}
@@ -99,7 +99,7 @@ Valor Troco R$                                ${0}
     }
 
     async generateFileTXT(Note: TNote, Itens: TItemsNote[], InvoicesNote: TInvoicesNote[], nameFile: string) {
-        const content = this.bodyCupon(Note, Itens, InvoicesNote);
+        const content = await this.bodyCupon(Note, Itens, InvoicesNote);
         // Pasta onde o arquivo será criado
         const outputDir = path.resolve(__dirname, "../../../tmp");
         // Garantir que a pasta existe
@@ -107,7 +107,7 @@ Valor Troco R$                                ${0}
         // Caminho completo para salvar o arquivo
         const filePath = path.join(outputDir, nameFile);
         // Gravar arquivo em disco
-        await fs.promises.writeFile(filePath, await content, "utf8");
+        await fs.promises.writeFile(filePath, content, "utf8");
         // Retorna caminho do arquivo para o controller
         return filePath;
     }
