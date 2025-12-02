@@ -16,9 +16,9 @@ const handleService: HandleService = new HandleService()
 const notesServices = new NotesServices()
 const handleTicket = new HandleTicket()
 
-const url_note:any = process.env.URL_NOTE
-const url_site:any = process.env.URL_SITE
-const title:any = process.env.TITLE
+const url_note: any = process.env.URL_NOTE
+const url_site: any = process.env.URL_SITE
+const title: any = process.env.TITLE
 
 class ConttrolersNotes {
 
@@ -182,7 +182,7 @@ class ConttrolersNotes {
                                         `Observações:\n` +
                                         `Valor recebido em dinheiro: R$ ${parseFloat(money?.valor || '0').toFixed(2)}\n` +
                                         `Esta nota Nº ${String(newNote.nota).padStart(6, '0')} não possui valor fiscal.\n` +
-                                        `Nota emitida on-line pelo site: ${url_site}`,
+                                        `Nota emitida on-line pelo site: ${url_site}\n`,
                                     fontSize: 9
                                 }
                             ]]
@@ -233,6 +233,7 @@ class ConttrolersNotes {
                 },
             };
 
+
             const pdfDoc = printer.createPdfKitDocument(docDefinitions)
             pdfDoc.pipe(fs.createWriteStream(`notes/note_${num_note}.pdf`))
             const chunks: any = [];
@@ -245,11 +246,56 @@ class ConttrolersNotes {
                 response.end(result);
             });
             // handleService.setSendMailNote(num_note, res.email, res.telefone, res.comprador, res.endereco)
-            handleTicket.generateFileTXT(newNote, `ticket_${newNote.nota}`)
         } catch (err: unknown) {
             response.json("Error Occurred ! " + err)
         }
     };
+
+    async createTicket(request: Request, response: Response) {
+        try {
+            const { num_nota: num_note } = request.params;
+
+            const res = await notesServices.getNote(num_note);
+            const itens = await notesServices.getItemsNote(num_note);
+            const invoices = await notesServices.getInvoice(num_note);
+            const money = await notesServices.getMoney(num_note);
+
+            const newNote = new Note(
+                res.nota, res.filial, res.comprador,
+                res.cpf, res.endereco, res.num_endereco, res.telefone, res.usuario,
+                res.email, res.emitida, res.val_rec, res.desc_venda,
+                res.total_venda, res.fantasia, res.f_endereco, res.cnpj, res.inscricao,
+                res.f_telefone, res.f_email, res.bairro, res.cep, res.uf,
+                res.municipio, itens, invoices, money
+            );
+
+            const bodyItems = await mountTableItems(newNote.items ?? []);
+            const bodyInvoice = await mountTableInvoice(newNote.invoices ?? []);
+
+            const qrText = `${process.env.URL_NOTE}/${newNote.nota}`;
+            const qrDataUrl = await QRCode.toDataURL(qrText);
+
+            const filePath: any = await handleTicket.generateFileTXT(
+                newNote,
+                itens,
+                invoices,
+                `ticket_${newNote.nota}.txt`
+            );
+
+
+            // 🔥 ENVIA O ARQUIVO PARA DOWNLOAD
+            return response.download(filePath, `ticket_${newNote.nota}.txt`, (err) => {
+                if (err) {
+                    console.error("Erro ao enviar arquivo:", err);
+                    return response.status(500).send("Erro ao enviar arquivo.");
+                }
+            });
+
+        } catch (error) {
+            console.error(error);
+            return response.status(500).json({ error: "Erro ao gerar ticket" });
+        }
+    }
 }
 
 export { ConttrolersNotes }
