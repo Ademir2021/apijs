@@ -10,9 +10,11 @@ import { mountTableInvoice } from "./utils/mountTableInvoice"
 import { mountTableItems } from "./utils/mountTableItems"
 import { Note } from "../../Entities/Note/Note"
 import { NotesServices } from "../../Services/Notes/NotesServices"
+import { HandleTicket } from "./ticket/HandleTicket";
 
 const handleService: HandleService = new HandleService()
 const notesServices = new NotesServices()
+const handleTicket = new HandleTicket()
 
 const url_note:any = process.env.URL_NOTE
 const url_site:any = process.env.URL_SITE
@@ -242,7 +244,8 @@ class ConttrolersNotes {
                 const result = Buffer.concat(chunks)
                 response.end(result);
             });
-            handleService.setSendMailNote(num_note, res.email, res.telefone, res.comprador, res.endereco)
+            // handleService.setSendMailNote(num_note, res.email, res.telefone, res.comprador, res.endereco)
+            handleTicket.generateFileTXT(newNote, `ticket_${newNote.nota}`)
         } catch (err: unknown) {
             response.json("Error Occurred ! " + err)
         }
