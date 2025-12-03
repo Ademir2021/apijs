@@ -1,105 +1,90 @@
 import fs from "fs";
 import path from "path";
-
-import QRCode from 'qrcode';
-
+// import QRCode from 'qrcode';
 import { TInvoicesNote, TMoney, TNote } from "../../../Interfaces/Note/Note"
 import { TItemsNote } from "../../../Interfaces/Note/Note";
 
 // const url_ticket: any = process.env.URL_TICKET
 
 class HandleTicket {
-    private async bodyTicket(Note: TNote, Itens: TItemsNote[], InvoicesNote: TInvoicesNote[]) {
-        return `NOTA DE VENDA NÚMERO: ${String(Note.nota).padStart(6, '0')}
-EMITIDA: ${new Date(Note.emitida).toLocaleDateString('pt-BR')}
-FANTASIA: ${Note.fantasia}
-RAZAO SOCIAL: ${Note.filial}
-CNPJ: ${Note.cnpj}
-USUÁRIO: ${Note.usuario}
 
-DADOS DO CLIENTE
-Nome: ${Note.comprador}
-CPF: ${Note.cpf}
-Telefone: ${Note.telefone}, Email: ${Note.email}
-Endereço: ${Note.endereco}, Cidade: ${Note.municipio}, Estado: ${Note.cep}
+    private async bodyTicket(
+        Note: TNote,
+        Itens: TItemsNote[],
+        InvoicesNote: TInvoicesNote[]
+    ) {
 
-PAGAMENTOS
-Em Dinheiro: R$ ${Note.money.valor || 0}
+        const fmtDate = (d: string | Date) =>
+            new Date(d).toLocaleDateString('pt-BR');
 
-DUPLICATAS
--------------------------------------------------------------------------------------------------------
-id  Tipo      Valor          Vencimento
--------------------------------------------------------------------------------------------------------
-${InvoicesNote.length > 0 && InvoicesNote.map((Invoice) =>
-            Invoice.id_conta.toString().padEnd(4, ' ') +
-            Invoice.tipo.toString().padEnd(10, ' ') +
-            Invoice.valor.toString().padEnd(15, ' ') +
-            new Date(Invoice.vencimento).toLocaleDateString('pt-BR')
-        ).join(`\n`)}
-------------------------------------------------------------------------------------------------------
+        const fmtMoney = (v: number = 0) =>
+            new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v);
 
-DISCRIMINAÇÃO DOS PRODUTOS
-------------------------------------------------------------------------------------------------------
-Item  Descrição dos Produtos                                          Quant   Unit    Total 
-------------------------------------------------------------------------------------------------------
-${Itens.map((ITem) =>
-            ITem.item.toString().padEnd(3, ' ') +
-            ITem.descricao.padEnd(70, ' ') +
-            ITem.quant.toString().padEnd(5, ' ') +
-            ITem.valor.toString().padEnd(9, ' ') +
-            ITem.total
-        ).join(`\n`)}
--------------------------------------------------------------------------------------------------------
+        const col = (text: any, size: number) =>
+            String(text ?? '').padEnd(size, ' ');
 
-TOTAIS
-TOTAL ITEMS: ${Note.total_venda}, DESCONTO: ${Note.desc_venda || 0}, TOTAL NOTA: ${Note.val_rec - Note.desc_venda}
+        const line = '---------------------------------------------------------------------------------------------------------------';
 
+        const duplicatas =
+            InvoicesNote.length > 0
+                ? InvoicesNote.map(inv =>
+                    col(inv.id_conta, 4) +
+                    col(inv.tipo, 10) +
+                    col(fmtMoney(inv.valor), 17) +
+                    fmtDate(inv.vencimento)
+                ).join('\n')
+                : 'Nenhuma duplicata';
+
+        const itens =
+            Itens.length > 0
+                ? Itens.map(p =>
+                    col(p.item, 6) +
+                    col(p.descricao, 70) +
+                    col('UN', 7) +
+                    col(p.quant, 6) +
+                    col(fmtMoney(p.valor), 12) +
+                    col(fmtMoney(p.total), 12)
+                ).join('\n')
+                : 'Nenhum item.';
+
+        return `Venda: ${String(Note.nota).padStart(6, '0')}, Emitida: ${fmtDate(Note.emitida)}
+${Note.fantasia}
+${Note.filial}
+CNPJ: ${Note.cnpj}, IE: ${Note.inscricao}
+${Note.f_endereco}
+
+Cliente..: ${Note.comprador}, CPF: ${Note.cpf}
+Telefone.: ${Note.telefone}, Email: ${Note.email}
+Endereço.: ${Note.endereco},${Note.bairro}
+Cidade...: ${Note.municipio}, CEP: ${Note.cep}
+
+Dinheiro: ${fmtMoney(parseFloat(Note.money?.valor) || 0)}
+${line}
+ID   Tipo       Valor            Vencimento
+${line}
+${duplicatas}
+${line}
+${line}
+Item  Descrição                                                             Un   Qtde    Preço       Total
+${line}
+${itens}
+${line}
+Quantidade de Itens Comprados.: ${Itens.length}
+Total dos ITens...............: ${fmtMoney(Note.total_venda)}
+Desconto na Nota..............: ${fmtMoney(Note.desc_venda)}
+Total da Nota.................: ${fmtMoney(Note.val_rec - (Note.desc_venda || 0))}
 
 
 
 
 
 ---------------------------------------------
-   Cliente ${Note.comprador}
-   CPF: ${Note.cpf}
-`;
-    }
-
-    private async bodyCupon(Note: TNote, Itens: TItemsNote[], InvoicesNote: TInvoicesNote[]) {
-        let id = 0
-        // const qrText = `${url_ticket +"/"+ Note.nota}`;
-        // const qrDataUrl = await QRCode.toDataURL(qrText); // Gera imagem base64
-        return `FANTASIA: ${Note.fantasia}
-RAZÃO SOCIAL: ${Note.filial} CNPJ: ${Note.cnpj} IE: ${Note.inscricao}
-TELEFONE: ${Note.f_telefone}
-${Note.f_endereco}
-
-DOCUMENTO AUXILIAR NOTA DE VENDA CONSUMIDOR ELETRÔNICA
---------------------------------------------------------
-SEQ | CÒDIGO | DESCRIÇÃO | QTD | UN | VL UN | VL TOTAL
---------------------------------------------------------
-${Itens.map((ITem) =>
-            `${id += 1}` + " " +
-            ITem.item.toString().padEnd(3, ' ') +
-            ITem.descricao.padEnd(66, ' ') + ' ' +
-            ITem.quant.toString() + ' UN ' + 'X ' +
-            ITem.valor.toString().padEnd(10, ' ') +
-            ITem.total.toString()
-        ).join(`\n`)}
----------------------------------------------------------
-Qtd. Total de Itens                           ${Itens.length}
-Valor Total R$                                ${Note.val_rec}
-Crediário Loja                                ${InvoicesNote.length > 0 && Note.val_rec || 0}
-Valor Troco R$                                ${0}
-        Número ${String(Note.nota).padStart(6, '0')} Série PE Emissão ${new Date(Note.emitida).toLocaleDateString('pt-BR')}
-        Consulte pelo número da Nota ${String(Note.nota).padStart(6, '0')}
-        Cliente: ${Note.comprador}, CPF:${Note.cpf}
-    
-        USUÁRIO: ${Note.usuario}`
+   Cliente: ${Note.comprador}
+   CPF: ${Note.cpf}                                                          Vendedor: ${Note.usuario}`;
     }
 
     async generateFileTXT(Note: TNote, Itens: TItemsNote[], InvoicesNote: TInvoicesNote[], nameFile: string) {
-        const content = await this.bodyCupon(Note, Itens, InvoicesNote);
+        const content = await this.bodyTicket(Note, Itens, InvoicesNote);
         // Pasta onde o arquivo será criado
         const outputDir = path.resolve(__dirname, "../../../tmp");
         // Garantir que a pasta existe
