@@ -10,6 +10,7 @@ export type TItemsNote = {
     item:string // id_item
     descricao:string
     marca:string
+    unMed:string;
     quant:number
     valor:number
     total:number

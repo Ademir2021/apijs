@@ -1,10 +1,7 @@
 import fs from "fs";
 import path from "path";
-// import QRCode from 'qrcode';
 import { TInvoicesNote, TMoney, TNote } from "../../../Interfaces/Note/Note"
 import { TItemsNote } from "../../../Interfaces/Note/Note";
-
-// const url_ticket: any = process.env.URL_TICKET
 
 class HandleTicket {
 
@@ -40,7 +37,7 @@ class HandleTicket {
                 ? Itens.map(p =>
                     col(p.item, 6) +
                     col(p.descricao, 70) +
-                    col('UN', 7) +
+                    col(p.unMed, 7) +
                     col(p.quant, 6) +
                     col(fmtMoney(p.valor), 12) +
                     col(fmtMoney(p.total), 12)
@@ -117,6 +114,7 @@ Total da Nota.................: ${fmtMoney(Note.val_rec - (Note.desc_venda || 0)
                 ? Itens.map(p =>
                     p.item + " " +
                     p.descricao.substring(0, 20) + " " +
+                    p.unMed + " " +
                     String(p.quant) + ' X' +
                     fmtMoney(p.valor).replace("R$", "") +
                     fmtMoney(p.total).replace("R$", "")
@@ -145,7 +143,7 @@ ${line}
 ${duplicatas}
 ${line}
 ${line}
-COD DESCRIÇÃO           QTD  VLR   TOTAL
+COD DESCRIÇÃO         UN  QTD  VLR   TOTAL
 ${line}
 ${itens}
 ${line}

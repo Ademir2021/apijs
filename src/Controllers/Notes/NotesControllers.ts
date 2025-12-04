@@ -150,7 +150,7 @@ class ConttrolersNotes {
                         style: 'columnsNota',
                         layout: 'lightHorizontalLines',
                         table: {
-                            widths: ["8%", "46%", "12%", "9%", "11%", "14%"],
+                            widths: ["6%", "46%", "10%", "7%", "9%", "13%", "12%"],
                             body: bodyItems
                         }
                     },
@@ -244,7 +244,8 @@ class ConttrolersNotes {
                 const result = Buffer.concat(chunks)
                 response.end(result);
             });
-            handleService.setSendMailNote(num_note, res.email, res.telefone, res.comprador, res.endereco)
+            
+            // handleService.setSendMailNote(num_note, res.email, res.telefone, res.comprador, res.endereco)
         } catch (err: unknown) {
             response.json("Error Occurred ! " + err)
         }
