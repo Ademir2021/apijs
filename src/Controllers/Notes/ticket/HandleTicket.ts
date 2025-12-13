@@ -20,7 +20,7 @@ class HandleTicket {
         const col = (text: any, size: number) =>
             String(text ?? '').padEnd(size, ' ');
 
-        const line = '-'.repeat(118);
+        const line = '-'.repeat(109);
 
         const duplicatas =
             InvoicesNote.length > 0
