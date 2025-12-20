@@ -57,12 +57,15 @@ app.use(routeDespesas)
 app.use(routeNFe)
 app.use(routeFiliais)
 
+
+
 app.use(
     (error: Error, request: Request, response: Response, next: NextFunction) => {
         return response.json({
             status: "Error",
             message: error.message,
         })
+
     })
 
 app.listen(PORT, () => console.log("server is runing on", { PORT }));
