@@ -12,7 +12,7 @@ class HandleNFe {
     formatDateNFe() {
         const dt = new Date()
         return moment().tz('America/Sao_Paulo').utc().format("YYYY-MM-DDTHH:mm:ssZ");
-    };
+    }
 
     /**
      * @description Gera Digito verificador
@@ -34,6 +34,7 @@ class HandleNFe {
 
     dvNFe(chaveAcesso: any) {
         if (chaveAcesso.length !== 44) {
+            // console.log(chaveAcesso)
             throw new Error("A chave de acesso deve ter 44 dígitos.");
         }
         const pesos = [4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
@@ -46,17 +47,6 @@ class HandleNFe {
         return digitoVerificador;
     };
 
-    formatnNF(id: number) {
-        let str8 = '00000000'
-        let str7 = '0000000'
-        let str6 = '000000'
-        if (id < 10)
-            return str8 + id
-        else if (id > 10 || id < 100)
-            return str7 + id
-        else if (id > 100 || id < 1000)
-            return str6 + id
-    } 
-};
+}
 
 export { HandleNFe }

@@ -1,19 +1,6 @@
 import { Request, Response } from "express"
 import { postgreSQL } from "../../Providers/Storages/pg/postgreSQL";
-
-interface ICep {
-    id_cep?: number;
-    num_cep: string;
-    code_city: number;
-    type_cep: string;
-    public_place: string; //logradouro
-    num_initial: Number
-    num_final: number
-    complement: string
-    created_at?: Date
-    city: string | undefined | any;
-    uf: string;
-};
+import { ICep } from "../../Interfaces/Ceps/Ceps";
 
 class CepControllers {
 

@@ -1,24 +1,10 @@
 import { Request, Response } from "express"
-import { IProduct, IListProductQuery } from "../../Interfaces/Product/Product"
+import { IProduct, TProduct, IListProductQuery } from "../../Interfaces/Product/Product"
 import { Product } from "../../Entities/Product/Product"
 import { ProductsServices } from "../../Services/Products/ProductsServices"
 import { DAO } from "../../Entities/DAO/DAO"
 
-type TProduct = {
-    id_product: number
-    descric_product: string
-    val_max_product: number
-    val_min_product: number
-    fk_brand: number
-    fk_sub_sector: number
-    fk_un_med: number
-    bar_code: string
-    image: string
-    fk_classe: number
-    fk_grupo_fiscal: number
-    fk_tipo_prod: number
-    ncm: string
-}
+
 
 class ProductControllers extends DAO {
     async saveProduct(request: Request, response: Response) {

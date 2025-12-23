@@ -1,33 +1,19 @@
 const jsonNFe = require('../../../json/nfe')
 import { NFeDAO } from "../../Entities/NFe/NFeDAO";
-import { INFe } from "../../Interfaces/NFe/NFe";
+import { INFe, TNFe } from "../../Interfaces/NFe/NFe";
 import { AutorizaNFe } from "./autoriza_nfe";
 import { GeraXMLNFe } from "./gera_xml_nfe";
 import { HandleNFe } from "./handleNFe/handleNFe";
 import { GeraItemsNFe } from './gera_items_nfe';
+import { IItems } from '../../Interfaces/NFe/NFe';
+import { TFilial } from "../../Interfaces/Filial/Filial";
+import { TPerson } from "../../Interfaces/Person/Person";
+import { ICep, ICity, ICountry, IPais } from "../../Interfaces/Ceps/Ceps";
+import { IUser } from "../../Interfaces/User/User";
+
+const nfeDAO = new NFeDAO()
 
 class NFeDTO {
-
-    private async findFilial(id:number){
-        const filial = await new NFeDAO().selectOne(NFeDAO.tbl_filiais, id , 'fk_person')
-        return filial[0]
-    };
-    private async findPerson(id:number){
-        const person = await new NFeDAO().selectOne(NFeDAO.tbl_persons, id, 'id_person')
-        return person[0]
-    };
-    private async findCEP(id: number) {
-        const cep = await new NFeDAO().selectOne(NFeDAO.tbl_ceps, id, 'id_cep')
-        return cep[0]
-    };
-    private async findCity(id: number) {
-        const city = await new NFeDAO().selectOne(NFeDAO.tbl_cities, id, 'id_city')
-        return city[0]
-    };
-    private async findPais(id: number){
-        const pais = await new NFeDAO().selectOne(NFeDAO.tbl_paises, id, 'id')
-        return pais[0]
-    };
 
     async handleNota(NFe: INFe) {
 
@@ -35,34 +21,32 @@ class NFeDTO {
         const nota_ = await new NFeDAO().selectOne(NFeDAO.tbl_notas, NFe.id_nota, "id_sale")
         const nota = nota_[0]
         const filial_ = await new NFeDAO().selectOne(NFeDAO.tbl_filiais, NFe.fk_name_filial, "id_filial")
-        const filial = filial_[0]
+        const filial: TFilial = filial_[0]
         const person_ = await new NFeDAO().selectOne(NFeDAO.tbl_persons, NFe.fk_name_pers, 'id_person')
-        const person = person_[0]
+        const person: TPerson = person_[0]
         const user_ = await new NFeDAO().selectOne(NFeDAO.tbl_users, NFe.fk_name_user, 'id')
-        const user = user_[0]
-        const items = await new NFeDAO().selectOne(NFeDAO.tbl_items_nota, NFe.id_nota, 'fk_sale')
-
-        // let nNF_ = new HandleNFe().formatnNF(nota.id_sale)
-        let nNF_ = String(nota.id_sale).padStart(9, '0')
+        const user: IUser = user_[0]
+        const items: IItems = await new NFeDAO().selectOne(NFeDAO.tbl_items_nota, NFe.id_nota, 'fk_sale')
 
         //Funções para dados de Emitente
-        const filial_res = await this.findFilial(filial.fk_person)
-        const person_filial = await this.findPerson(filial_res.fk_person)
-        const cep_filial = await this.findCEP(person_filial.fk_cep)
-        const city_filial = await this.findCity(cep_filial.code_city)
-        const pais_filial = await this.findPais(city_filial.code_country)
-
+        const filial_res: TFilial = await nfeDAO.findFilial(filial.fk_person)
+        const person_filial: TPerson = await nfeDAO.findPerson(filial_res.id_filial)
+        const cep_filial: ICep = await nfeDAO.findCEP(person_filial.fk_cep)
+        const city_filial: ICity = await nfeDAO.findCity(cep_filial.code_city)
+        const pais_filial: IPais = await nfeDAO.findPais(city_filial.code_country)
+    
         //Funções dados do Destinatário
-        const cep = await this.findCEP(person.fk_cep)
-        const city = await this.findCity(cep.code_city)
-        const pais = await this.findPais(city.code_country)
+        const cep: ICep = await nfeDAO.findCEP(person.fk_cep)
+        const city: ICity = await nfeDAO.findCity(cep.code_city)
+        const pais: IPais = await nfeDAO.findPais(city.code_country)
 
+        
         // IDE
         const ide = jsonNFe.nfeProc.NFe.infNFe.ide
         ide.cUF = "35"
-        ide.cNF =  nNF_ /*Código numérico que compõe a Chave
-                                            de Acesso. Número aleatório gerado
-                                            pelo emitente para cada NF-e.*/
+        let nNF_ = String(nota.id_sale).padStart(9, '0')
+        ide.cNF = nNF_  /*Código numérico que compõe a Chave
+                        de Acesso. Número aleatório gerado pelo emitente para cada NF-e.*/
         ide.mod = "55"
         ide.serie = "001"
         ide.nNF = nNF_ // Número do documento fiscal
@@ -124,27 +108,26 @@ class NFeDTO {
 
         const total = jsonNFe.nfeProc.NFe.infNFe.total
         total.ICMSTot.vBC = nota.total_sale
-        total.ICMSTot.vICMS = 56.80
+        // total.ICMSTot.vICMS = 56.80
         total.ICMSTot.vProd = nota.val_rec
         total.ICMSTot.vNF = nota.val_rec
         total.ICMSTot.CNF = nota.total_sale
 
         const geraItemsNFe = new GeraItemsNFe()
         const gerarItemsNFe = await geraItemsNFe.gerarItemsNFe(items)
-        console.log(gerarItemsNFe)
+        // console.log(gerarItemsNFe)
 
         const geraXMLNFe = new GeraXMLNFe()
         const gerarXMLNFe = geraXMLNFe.gerarXMLNFe()
-        console.log(gerarXMLNFe)
+        // console.log(gerarXMLNFe)
 
         const geraNFe = new NFeDAO()
         const gerarNFe = await geraNFe.gerarNFe(nota)
-        console.log(gerarNFe)
+        // console.log(gerarNFe)
 
         // const autorizaNFe = new AutorizaNFe()
         // const autorizarNFe = autorizaNFe.autorizarNFe()
         // console.log(autorizarNFe)
-
         return jsonNFe
     }
 }

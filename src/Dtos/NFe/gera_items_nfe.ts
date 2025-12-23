@@ -1,21 +1,12 @@
 import fs from 'fs';
 const jsonNFe = require('../../../json/nfe')
 import { IItems } from '../../Interfaces/NFe/NFe';
+import { IGrupoFiscal, ITableTrib, IUnMed, TProduct } from '../../Interfaces/Product/Product';
 import { NFeDAO } from '../../Entities/NFe/NFeDAO';
 
+const nfeDAO = new NFeDAO()
+
 class GeraItemsNFe {
-    private async findItem(id: number) {
-        const product = await new NFeDAO().selectOne(NFeDAO.tbl_products, id, "id_product")
-        return product[0]
-    };
-    private async findTableTrib(id: number) {
-        const table_trib = await new NFeDAO().selectOne(NFeDAO.tbl_table_trib, id, "id_table_trib")
-        return table_trib[0]
-    };
-    private async findUnMeds(id: number) {
-        const un_meds = await new NFeDAO().selectOne(NFeDAO.tbl_un_meds, id, "id_un")
-        return un_meds[0]
-    };
 
     /**
     * @description Gerar items para XML da NFe
@@ -23,18 +14,28 @@ class GeraItemsNFe {
     * @returns String
     */
     async gerarItemsNFe(items: IItems) {
-        jsonNFe.nfeProc.NFe.infNFe.det = []
-        for (let item of items) {
 
-            //Funções
-            const product = await this.findItem(item.fk_product)
-            const table_trib = await this.findTableTrib(product.fk_grupo_fiscal)
-            const un_med = await this.findUnMeds(product.fk_un_med)
+        let vICMS_T_: number = 0
+        jsonNFe.nfeProc.NFe.infNFe.det = []
+
+        for (let item of items) {
+            //Funções 
+            const product: TProduct = await nfeDAO.findItem(item.fk_product)
+            const grupo_fiscal: IGrupoFiscal = await nfeDAO.findGrupoFiscal(product.fk_grupo_fiscal)
+            const table_trib: ITableTrib = await nfeDAO.findTableTrib(grupo_fiscal.fk_tabela_trib)
+            const un_med: IUnMed = await nfeDAO.findUnMeds(product.fk_un_med)
 
             //Calculos
-            const vICMS = parseFloat(table_trib.icms_trib) * parseFloat(table_trib.icms_aliq)
-            const vCOFINS = parseFloat(table_trib.cofins_base) * parseFloat(table_trib.cofins_aliq);
-            const vPIS = parseFloat(table_trib.pis_base) * parseFloat(table_trib.pis_aliq)
+            const vICMS_ = item.total_product * (table_trib.icms_aliq / table_trib.icms_trib)
+            const vICMS: string = vICMS_.toFixed(3)
+            vICMS_T_ += vICMS_
+            const vICMS_T: String = vICMS_T_.toFixed(3)
+
+            const vCOFINS_ = item.total_product * (table_trib.cofins_aliq / table_trib.cofins_base)
+            const vCOFINS: String = vCOFINS_.toFixed(3)
+
+            const vPIS_ = item.total_product * (table_trib.pis_aliq / table_trib.pis_base)
+            const vPIS: String = vPIS_.toFixed(3)
 
             const newItem = {
                 "nItem": (jsonNFe.nfeProc.NFe.infNFe.det.length + 1).toString(),
@@ -84,6 +85,7 @@ class GeraItemsNFe {
                 }
             };
             jsonNFe.nfeProc.NFe.infNFe.det.push(newItem);
+            jsonNFe.nfeProc.NFe.infNFe.total.ICMSTot.vICMS = vICMS_T
         };
         fs.writeFileSync('json/nfe.json', JSON.stringify(jsonNFe, null, 2), 'utf-8');
         return 'Items gravados com sucesso.'
