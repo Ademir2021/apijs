@@ -1,6 +1,6 @@
 const jsonNFe = require('../../../json/nfe')
 import { NFeDAO } from "../../Entities/NFe/NFeDAO";
-import { INFe, TNFe } from "../../Interfaces/NFe/NFe";
+import { INFe } from "../../Interfaces/NFe/NFe";
 import { AutorizaNFe } from "./autoriza_nfe";
 import { GeraXMLNFe } from "./gera_xml_nfe";
 import { HandleNFe } from "./handleNFe/handleNFe";
@@ -8,7 +8,7 @@ import { GeraItemsNFe } from './gera_items_nfe';
 import { IItems } from '../../Interfaces/NFe/NFe';
 import { TFilial } from "../../Interfaces/Filial/Filial";
 import { TPerson } from "../../Interfaces/Person/Person";
-import { ICep, ICity, ICountry, IPais } from "../../Interfaces/Ceps/Ceps";
+import { ICep, ICity, IPais } from "../../Interfaces/Ceps/Ceps";
 import { IUser } from "../../Interfaces/User/User";
 
 const nfeDAO = new NFeDAO()
@@ -18,15 +18,15 @@ class NFeDTO {
     async handleNota(NFe: INFe) {
 
         // Parametros para a NFe
-        const nota_ = await new NFeDAO().selectOne(NFeDAO.tbl_notas, NFe.id_nota, "id_sale")
+        const nota_ = await nfeDAO.selectOne(NFeDAO.tbl_notas, NFe.id_nota, "id_sale")
         const nota = nota_[0]
-        const filial_ = await new NFeDAO().selectOne(NFeDAO.tbl_filiais, NFe.fk_name_filial, "id_filial")
+        const filial_ = await nfeDAO.selectOne(NFeDAO.tbl_filiais, NFe.fk_name_filial, "id_filial")
         const filial: TFilial = filial_[0]
-        const person_ = await new NFeDAO().selectOne(NFeDAO.tbl_persons, NFe.fk_name_pers, 'id_person')
+        const person_ = await nfeDAO.selectOne(NFeDAO.tbl_persons, NFe.fk_name_pers, 'id_person')
         const person: TPerson = person_[0]
-        const user_ = await new NFeDAO().selectOne(NFeDAO.tbl_users, NFe.fk_name_user, 'id')
+        const user_ = await nfeDAO.selectOne(NFeDAO.tbl_users, NFe.fk_name_user, 'id')
         const user: IUser = user_[0]
-        const items: IItems = await new NFeDAO().selectOne(NFeDAO.tbl_items_nota, NFe.id_nota, 'fk_sale')
+        const items: IItems = await nfeDAO.selectOne(NFeDAO.tbl_items_nota, NFe.id_nota, 'fk_sale')
 
         //Funções para dados de Emitente
         const filial_res: TFilial = await nfeDAO.findFilial(filial.fk_person)
@@ -40,7 +40,6 @@ class NFeDTO {
         const city: ICity = await nfeDAO.findCity(cep.code_city)
         const pais: IPais = await nfeDAO.findPais(city.code_country)
 
-        
         // IDE
         const ide = jsonNFe.nfeProc.NFe.infNFe.ide
         ide.cUF = "35"
@@ -115,15 +114,15 @@ class NFeDTO {
 
         const geraItemsNFe = new GeraItemsNFe()
         const gerarItemsNFe = await geraItemsNFe.gerarItemsNFe(items)
-        // console.log(gerarItemsNFe)
+        console.log(gerarItemsNFe)
 
         const geraXMLNFe = new GeraXMLNFe()
         const gerarXMLNFe = geraXMLNFe.gerarXMLNFe()
-        // console.log(gerarXMLNFe)
+        console.log(gerarXMLNFe)
 
         const geraNFe = new NFeDAO()
         const gerarNFe = await geraNFe.gerarNFe(nota)
-        // console.log(gerarNFe)
+        console.log(gerarNFe)
 
         // const autorizaNFe = new AutorizaNFe()
         // const autorizarNFe = autorizaNFe.autorizarNFe()

@@ -105,8 +105,8 @@ class NFeDAO extends DAO {
      * @param  code_country // fk da tabela de paises
      * @returns 
      */
-    async findPais( code_country: number) {
-        const res = await new NFeDAO().selectOne(NFeDAO.tbl_paises,  code_country, 'id')
+    async findPais(code_country: number) {
+        const res = await new NFeDAO().selectOne(NFeDAO.tbl_paises, code_country, 'id')
         return res[0]
     };
 
@@ -140,7 +140,7 @@ WHERE id_sale = $6
 
         try {
             const res = await postgreSQL.query(query, values);
-            return res;
+            return `NFe Nº:${ide.nNF} gerada com sucesso.`
         } catch (err) {
             return (new NFeDAO().errors(err));
         }
