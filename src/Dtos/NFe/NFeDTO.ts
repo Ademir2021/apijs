@@ -42,7 +42,7 @@ class NFeDTO {
 
         // IDE
         const ide = jsonNFe.nfeProc.NFe.infNFe.ide
-        ide.cUF = "35"
+        ide.cUF = String(city.code_state_revenue)
         let nNF_ = String(nota.id_sale).padStart(9, '0')
         ide.cNF = nNF_  /*Código numérico que compõe a Chave
                         de Acesso. Número aleatório gerado pelo emitente para cada NF-e.*/
@@ -52,11 +52,11 @@ class NFeDTO {
         const dt = new HandleNFe().formatDateNFe()
         ide.dhEmi = dt
         ide.dhSaiEnt = dt
-        ide.idDest = '1' /*Identificador de Local de destino da
+        ide.idDest = city.uf == city_filial.uf ? '1' : '2' /*Identificador de Local de destino da
                             operação (1-Interna;2-Interestadual;3-Exterior)*/
         ide.cMunFG = city_filial.code_ibge
         ide.tpAmb = '2' // 1 Produção - 2 Homologação
-        ide.tpNF = "000000001" // Tipo de Documento Fiscal (0 - entrada; 1- saída)
+        ide.tpNF = String(1).padStart(9, '0') // Tipo de Documento Fiscal (0 - entrada; 1- saída)
         ide.tpEmis = '1' /* Forma de emissão da NF-e;
             1 - Normal;
             2 - Contingência FS
@@ -107,7 +107,6 @@ class NFeDTO {
 
         const total = jsonNFe.nfeProc.NFe.infNFe.total
         total.ICMSTot.vBC = nota.total_sale
-        // total.ICMSTot.vICMS = 56.80
         total.ICMSTot.vProd = nota.val_rec
         total.ICMSTot.vNF = nota.val_rec
         total.ICMSTot.CNF = nota.total_sale
