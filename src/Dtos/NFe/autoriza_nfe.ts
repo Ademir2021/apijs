@@ -1,5 +1,6 @@
 import fs from 'fs';
 import soap from 'soap';
+const jsonNFe = require('../../../json/nfe')
 const forge = require('node-forge');
 const { SignedXml } = require('xml-crypto');
 const { DOMParser } = require('xmldom');
@@ -15,7 +16,7 @@ class AutorizaNFe {
 
         const url = 'https://nfe.sefa.pr.gov.br/nfe/NFeAutorizacao4?wsdl';
 
-        const pfx = fs.readFileSync('CLAUDIA CAROLINE ALVES_26907136000173.pfx'); // Carregar o certificado .pfx
+        const pfx = fs.readFileSync('certificados/CLAUDIA CAROLINE ALVES_26907136000173.pfx'); // Carregar o certificado .pfx
 
         const pfxAsn1 = forge.asn1.fromDer(pfx.toString('binary')); // Descriptografar o .pfx para obter a chave privada e o certificado
         const p12 = forge.pkcs12.pkcs12FromAsn1(pfxAsn1, '066128');  //senha do certificado
@@ -26,7 +27,7 @@ class AutorizaNFe {
         const keyBag = keyBags[forge.pki.oids.pkcs8ShroudedKeyBag][0];
         const privateKey = keyBag.key;
 
-        const xml = fs.readFileSync('xml/nfe.xml', 'utf-8');// Carregar o XML da NF-e
+        const xml = fs.readFileSync(`xml/nfe_num_${jsonNFe.nfeProc.NFe.infNFe.ide.nNF}.xml`, 'utf-8');// Carregar o XML da NF-e
         const doc = new DOMParser().parseFromString(xml);
 
         const sig = new SignedXml();// Criar uma nova assinatura XML
@@ -39,15 +40,15 @@ class AutorizaNFe {
 
         sig.computeSignature(doc); // Assinar o documento
         const signedXml = sig.getSignedXml();// Converter o documento assinado para string e salvar
-        fs.writeFileSync('xmlAssinada/nfe-assinada.xml', signedXml);
+        fs.writeFileSync(`xmlAssinada/nfe_num_${jsonNFe.nfeProc.NFe.infNFe.ide.nNF}.xml`, signedXml);
 
         const args = { // Criar a requisição SOAP
             nfeDadosMsg: signedXml
         };
 
-        soap.createClient(url, (err:Error, client:any) => {
+        soap.createClient(url, (err: Error, client: any) => {
             if (err) throw err;
-            client.nfeAutorizacaoLote(args, (err:Error, result:Response) => {
+            client.nfeAutorizacaoLote(args, (err: Error, result: Response) => {
                 if (err) throw err;
                 console.log(result);
             });

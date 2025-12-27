@@ -11,14 +11,19 @@ const nfe: TNFe = {
     items: [],
     val_rec: 0,
     disc_sale: 0,
-    total_sale: 0
+    total_sale: 0,
+    model: "",
+    serie: "",
+    tpAmb: "",
+    tpEmis: "",
+    tpNf: ""
 };
 
 const nfeServices = new NFeServices()
 
 class NFeControllers {
     async handleNFe(request: Request, response: Response) {
-        const note:INFe = new NFe(
+        const note: INFe = new NFe(
             nfe.id_sale,
             nfe.fk_name_filial,
             nfe.fk_name_user,
@@ -26,15 +31,20 @@ class NFeControllers {
             [],
             nfe.val_rec,
             nfe.disc_sale,
-            nfe.total_sale
+            nfe.total_sale,
+            nfe.model,
+            nfe.serie,
+            nfe.tpAmb,
+            nfe.tpEmis,
+            nfe.tpNf
         )
-        const res:INFe = await nfeServices.handleNota(note)
+        const res: INFe = await nfeServices.handleNota(note)
         response.json(res)
     }
 
     async gerarNFe(request: Request, response: Response) {
-        const res:TNFe = <TNFe>request.body
-        const note:INFe = new NFe(
+        const res: TNFe = <TNFe>request.body
+        const note: INFe = new NFe(
             res.id_sale,
             res.fk_name_filial,
             res.fk_name_user,
@@ -42,11 +52,16 @@ class NFeControllers {
             [],
             res.val_rec,
             res.disc_sale,
-            res.total_sale
+            res.total_sale,
+            res.model,
+            res.serie,
+            res.tpAmb,
+            res.tpEmis,
+            res.tpNf
         )
-        const resp:INFe = await nfeServices.handleNota(note)
+        const resp: INFe = await nfeServices.handleNota(note)
         response.json(resp)
-    }  
+    }
 }
 
 export { NFeControllers }

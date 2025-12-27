@@ -46,8 +46,8 @@ class NFeDTO {
         let nNF_ = String(nota.id_sale).padStart(9, '0')
         ide.cNF = nNF_  /*Código numérico que compõe a Chave
                         de Acesso. Número aleatório gerado pelo emitente para cada NF-e.*/
-        ide.mod = "55"
-        ide.serie = "001"
+        ide.mod = NFe.model
+        ide.serie = NFe.serie
         ide.nNF = nNF_ // Número do documento fiscal
         const dt = new HandleNFe().formatDateNFe()
         ide.dhEmi = dt
@@ -55,17 +55,9 @@ class NFeDTO {
         ide.idDest = city.uf == city_filial.uf ? '1' : '2' /*Identificador de Local de destino da
                             operação (1-Interna;2-Interestadual;3-Exterior)*/
         ide.cMunFG = city_filial.code_ibge
-        ide.tpAmb = '2' // 1 Produção - 2 Homologação
-        ide.tpNF = String(1).padStart(9, '0') // Tipo de Documento Fiscal (0 - entrada; 1- saída)
-        ide.tpEmis = '1' /* Forma de emissão da NF-e;
-            1 - Normal;
-            2 - Contingência FS
-            3 - Regime Especial NFF (NT 2021.002)
-            4 - Contingência DPEC
-            5 - Contingência FSDA
-            6 - Contingência SVC - AN
-            7 - Contingência SVC - RS
-            9 - Contingência off-line NFC-e */
+        ide.tpAmb = NFe.tpAmb // 1 Produção - 2 Homologação
+        ide.tpNF = String(NFe.tpNf).padStart(9, '0') // 0 - entrada 1- saída
+        ide.tpEmis = NFe.tpEmis
 
         // Dados do Emitente
         const emit = jsonNFe.nfeProc.NFe.infNFe.emit
@@ -126,6 +118,7 @@ class NFeDTO {
         // const autorizaNFe = new AutorizaNFe()
         // const autorizarNFe = autorizaNFe.autorizarNFe()
         // console.log(autorizarNFe)
+    
         return jsonNFe
     }
 }

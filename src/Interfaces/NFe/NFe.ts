@@ -14,6 +14,11 @@ export type INFe = {
     situacao_nfe?:string
     chave_nfe?:string
     protocolo_nfe?:string
+    model:string
+    serie:string
+    tpAmb:string
+    tpEmis:string
+    tpNf:string
 }
 
 export type TNFe = {
@@ -25,6 +30,11 @@ export type TNFe = {
     val_rec: number
     disc_sale: number
     total_sale: number
+    model:string
+    serie:string
+    tpAmb:string
+    tpEmis:string
+    tpNf:string
 }
 
 export type IItems = [{

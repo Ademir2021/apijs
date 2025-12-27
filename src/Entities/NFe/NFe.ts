@@ -11,6 +11,11 @@ class NFe extends NFeDAO implements INFe {
     val_rec = 0
     disc_sale = 0
     total_sale = 0
+    model: string
+    serie:string
+    tpAmb: string;
+    tpEmis: string;
+    tpNf: string;
     constructor(
         id_nota: number,
         fk_name_filial: number,
@@ -19,7 +24,12 @@ class NFe extends NFeDAO implements INFe {
         items: IProduct[],
         val_rec: number,
         disc_sale: number,
-        total_sale: number
+        total_sale: number,
+        model:string,
+        serie:string,
+        tpAmb:string,
+        tpEmis:string,
+        tpNf:string
     ) {
         super()
         this.id_nota = id_nota
@@ -30,6 +40,11 @@ class NFe extends NFeDAO implements INFe {
         this.val_rec = val_rec
         this.disc_sale = disc_sale
         this.total_sale = total_sale
+        this.model = model
+        this.serie = serie
+        this.tpAmb = tpAmb
+        this.tpEmis = tpEmis
+        this.tpNf = tpNf
     }
 }
 export { NFe }
