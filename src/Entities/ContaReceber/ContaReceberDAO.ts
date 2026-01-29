@@ -9,8 +9,8 @@ class ContaReceberDAO extends DAO {
         try {
             const query = `
                 INSERT INTO ${ContaReceberDAO.table} 
-                (fk_filial, tipo, fk_user, parcela, valor, multa, juros, desconto, emissao, vencimento, saldo, recebimento, observacao, fk_pagador) 
-                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+                (fk_filial, tipo, fk_user, parcela, valor, multa, juros, desconto, emissao, vencimento, saldo, recebimento, observacao, fk_pagador, situacao) 
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
             `;
             const values = [
                 Titulo.fk_filial,
@@ -26,7 +26,8 @@ class ContaReceberDAO extends DAO {
                 Titulo.saldo,
                 Titulo.recebimento,
                 Titulo.observacao,
-                Titulo.fk_pagador
+                Titulo.fk_pagador,
+                Titulo.situacao
             ];
             await postgreSQL.query(query, values);
             return "Título gerado com sucesso.";
@@ -55,8 +56,9 @@ class ContaReceberDAO extends DAO {
                     pagamento = $13,
                     recebimento = $14,
                     observacao = $15,
-                    fk_pagador = $16
-                WHERE id_conta = $17
+                    fk_pagador = $16,
+                    situacao = $17
+                WHERE id_conta = $18
             `;
             const values = [
                 ContaRec.fk_filial,
@@ -75,6 +77,7 @@ class ContaReceberDAO extends DAO {
                 ContaRec.recebimento,
                 ContaRec.observacao,
                 ContaRec.fk_pagador,
+                ContaRec.situacao,
                 ContaRec.id_conta
             ];
             await postgreSQL.query(query, values);
@@ -83,6 +86,5 @@ class ContaReceberDAO extends DAO {
         }
     }
 }
-
 
 export { ContaReceberDAO }

@@ -11,7 +11,7 @@ class ContasReceberControllers {
             resp.id_conta, resp.fk_filial, resp.tipo, resp.fk_venda,
             resp.fk_user, resp.parcela, resp.valor, resp.multa, resp.juros,
             resp.desconto, resp.emissao, resp.vencimento, resp.saldo,
-            resp.pagamento, resp.recebimento, resp.observacao, resp.fk_pagador)
+            resp.pagamento, resp.recebimento, resp.observacao, resp.fk_pagador, resp.situacao)
         const insertConta = await new ContasAReceberServices().insert(contaReceber)
         return response.json(insertConta)
     };
@@ -21,7 +21,7 @@ class ContasReceberControllers {
             resp.id_conta, resp.fk_filial, resp.tipo, resp.fk_venda,
             resp.fk_user, resp.parcela, resp.valor, resp.multa, resp.juros,
             resp.desconto, resp.emissao, resp.vencimento, resp.saldo,
-            resp.pagamento, resp.recebimento, resp.observacao, resp.fk_pagador)
+            resp.pagamento, resp.recebimento, resp.observacao, resp.fk_pagador, resp.situacao)
         const updateConta = await new ContasAReceberServices().update(contaReceber)
         console.log(updateConta)
         return response.json(updateConta)

@@ -16,4 +16,5 @@ export type IContaAreceber = {
     recebimento: number
     observacao: string
     fk_pagador:number
+    situacao:string
 }

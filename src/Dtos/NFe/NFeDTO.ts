@@ -34,7 +34,7 @@ class NFeDTO {
         const cep_filial: ICep = await nfeDAO.findCEP(person_filial.fk_cep)
         const city_filial: ICity = await nfeDAO.findCity(cep_filial.code_city)
         const pais_filial: IPais = await nfeDAO.findPais(city_filial.code_country)
-    
+
         //Funções dados do Destinatário
         const cep: ICep = await nfeDAO.findCEP(person.fk_cep)
         const city: ICity = await nfeDAO.findCity(cep.code_city)
@@ -43,6 +43,13 @@ class NFeDTO {
         // IDE
         const ide = jsonNFe.nfeProc.NFe.infNFe.ide
         ide.cUF = String(city.code_state_revenue)
+        ide.natOp = "Venda" /* Informar a natureza da operação de que decorrer a saída 
+                            ou a entrada, tais como: venda, compra, transferência, 
+                            devolução, importação, consignação, remessa (para fins de 
+                            demonstração, de industrialização ou outra), conforme 
+                            previsto na alínea 'i', inciso I, art. 19 do CONVÊNIO S/Nº, de 
+                            15 de dezembro de 1970.
+                            */
         let nNF_ = String(nota.id_sale).padStart(9, '0')
         ide.cNF = nNF_  /*Código numérico que compõe a Chave
                         de Acesso. Número aleatório gerado pelo emitente para cada NF-e.*/
@@ -55,6 +62,15 @@ class NFeDTO {
         ide.idDest = city.uf == city_filial.uf ? '1' : '2' /*Identificador de Local de destino da
                             operação (1-Interna;2-Interestadual;3-Exterior)*/
         ide.cMunFG = city_filial.code_ibge
+        ide.tpImp = '1' /** 0=Sem geração de DANFE;  
+                            1=DANFE normal, Retrato;  
+                            2=DANFE normal, Paisagem;  
+                            3=DANFE Simplificado; 4=DANFE NFC-e; 
+                            5=DANFE NFC-e em mensagem eletrônica (o envio de 
+                            mensagem eletrônica pode ser feita de forma simultânea 
+                            com a impressão do DANFE; usar o tpImp=5 quando esta 
+                            for a única forma de disponibilização do DANFE).
+                            */
         ide.tpAmb = NFe.tpAmb // 1 Produção - 2 Homologação
         ide.tpNF = String(NFe.tpNf).padStart(9, '0') // 0 - entrada 1- saída
         ide.tpEmis = NFe.tpEmis
@@ -118,7 +134,7 @@ class NFeDTO {
         // const autorizaNFe = new AutorizaNFe()
         // const autorizarNFe = autorizaNFe.autorizarNFe()
         // console.log(autorizarNFe)
-    
+
         return jsonNFe
     }
 }

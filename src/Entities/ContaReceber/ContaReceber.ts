@@ -19,6 +19,7 @@ class ContaReceber extends ContaReceberDAO implements IContaAreceber {
     recebimento = 0
     observacao = ''
     fk_pagador = 0
+    situacao = "Aberto"
     constructor(
         id_conta:number,
         fk_filial: number,
@@ -36,7 +37,8 @@ class ContaReceber extends ContaReceberDAO implements IContaAreceber {
         pagamento: Date,
         recebimento: number,
         observacao:string,
-        fkPagador:number
+        fkPagador:number,
+        situacao:string
     ) {
         super()
         this.id_conta = id_conta
@@ -56,6 +58,7 @@ class ContaReceber extends ContaReceberDAO implements IContaAreceber {
         this.recebimento = recebimento
         this.observacao = observacao
         this.fk_pagador = fkPagador
+        this.situacao = situacao
     }
 }
 
